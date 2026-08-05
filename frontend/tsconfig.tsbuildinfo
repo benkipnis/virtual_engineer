@@ -1,0 +1,1 @@
+{"root":["./src/app.tsx","./src/main.tsx","./src/types.ts","./src/vite-env.d.ts","./src/components/evidencecard.tsx","./src/components/patternbadge.tsx","./src/components/queryinspector.tsx","./src/components/scenariopicker.tsx","./src/context/chatcontext.tsx","./src/tabs/evidenceboardtab.tsx","./src/tabs/fieldchattab.tsx","./src/tabs/overviewtab.tsx"],"version":"5.9.3"}

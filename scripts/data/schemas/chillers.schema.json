@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "chillers.schema.json",
+  "title": "chillers",
+  "type": "object",
+  "required": [
+    "chiller_id",
+    "site_id",
+    "serial_number",
+    "model_family",
+    "model_number",
+    "product_line",
+    "configuration",
+    "operating_status",
+    "install_date",
+    "firmware_version",
+    "connectivity",
+    "current_setpoints"
+  ],
+  "properties": {
+    "chiller_id": { "type": "string" },
+    "site_id": { "type": "string" },
+    "serial_number": { "type": "string" },
+    "model_family": { "type": "string", "enum": ["30XA", "30RB", "19XR", "30XV"] },
+    "model_number": { "type": "string" },
+    "product_line": { "type": "string" },
+    "configuration": {
+      "type": "object",
+      "required": [
+        "cooling_capacity_tons",
+        "refrigerant",
+        "circuit_count",
+        "compressor_type",
+        "condenser_type"
+      ],
+      "properties": {
+        "cooling_capacity_tons": { "type": "number" },
+        "refrigerant": { "type": "string" },
+        "circuit_count": { "type": "integer", "minimum": 1 },
+        "compressor_type": { "type": "string" },
+        "condenser_type": { "type": "string", "enum": ["air_cooled", "water_cooled"] }
+      }
+    },
+    "operating_status": {
+      "type": "string",
+      "enum": ["running", "stopped", "fault", "delay"]
+    },
+    "install_date": { "type": "string", "format": "date" },
+    "firmware_version": { "type": "string" },
+    "connectivity": {
+      "type": "object",
+      "required": ["remote_monitoring_enabled", "last_communication_at"],
+      "properties": {
+        "remote_monitoring_enabled": { "type": "boolean" },
+        "last_communication_at": { "type": "string", "format": "date-time" }
+      }
+    },
+    "current_setpoints": {
+      "type": "object",
+      "required": ["leaving_chilled_water_f", "cooling_setpoint_select"],
+      "properties": {
+        "leaving_chilled_water_f": { "type": "number" },
+        "cooling_setpoint_select": { "type": "string" }
+      }
+    }
+  },
+  "additionalProperties": false
+}

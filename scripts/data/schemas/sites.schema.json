@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "sites.schema.json",
+  "title": "sites",
+  "type": "object",
+  "required": ["site_id", "name", "customer_name", "address", "timezone", "building_type"],
+  "properties": {
+    "site_id": { "type": "string", "description": "Primary key, e.g. SITE-ATL-001" },
+    "name": { "type": "string" },
+    "customer_name": { "type": "string" },
+    "address": {
+      "type": "object",
+      "required": ["street", "city", "state", "country", "postal_code"],
+      "properties": {
+        "street": { "type": "string" },
+        "city": { "type": "string" },
+        "state": { "type": "string" },
+        "country": { "type": "string" },
+        "postal_code": { "type": "string" }
+      }
+    },
+    "timezone": { "type": "string", "description": "IANA timezone" },
+    "building_type": {
+      "type": "string",
+      "enum": ["commercial", "healthcare", "industrial", "education", "data_center"]
+    },
+    "service_contract": {
+      "type": "object",
+      "properties": {
+        "contract_id": { "type": "string" },
+        "tier": { "type": "string", "description": "ServiceEdge service tier" },
+        "remote_monitoring_enabled": { "type": "boolean" }
+      }
+    }
+  },
+  "additionalProperties": false
+}

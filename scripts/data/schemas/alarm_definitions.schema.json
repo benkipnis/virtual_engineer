@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "alarm_definitions.schema.json",
+  "title": "alarm_definitions",
+  "type": "object",
+  "required": [
+    "alarm_code",
+    "code_format",
+    "model_families",
+    "subsystem",
+    "severity",
+    "description",
+    "reason",
+    "control_action",
+    "reset_type",
+    "probable_causes",
+    "diagnostic_steps"
+  ],
+  "properties": {
+    "alarm_code": { "type": "string" },
+    "code_format": {
+      "type": "string",
+      "enum": ["prefix_suffix", "numeric_protective", "communication"]
+    },
+    "model_families": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "subsystem": {
+      "type": "string",
+      "enum": ["compressor", "condenser", "motor", "refrigeration", "electrical", "communication", "controls"]
+    },
+    "severity": {
+      "type": "string",
+      "enum": ["critical", "warning", "alert"]
+    },
+    "description": { "type": "string" },
+    "reason": { "type": "string" },
+    "control_action": { "type": "string" },
+    "reset_type": { "type": "string", "enum": ["manual", "automatic"] },
+    "probable_causes": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "diagnostic_steps": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,272 @@
+[
+  {
+    "ticket_id": "WO-2025-11847",
+    "chiller_id": "CH-ATL-003",
+    "site_id": "SITE-ATL-003",
+    "status": "closed",
+    "priority": "P2",
+    "type": "corrective",
+    "opened_at": "2025-11-08T17:30:00Z",
+    "closed_at": "2025-11-09T14:45:00Z",
+    "reported_symptom": "Chiller tripped on compressor motor high temperature alarm circuit A. OR team reports elevated supply air temps in surgical wing.",
+    "related_alarm_codes": ["A1.01", "A1.04"],
+    "technician": {
+      "id": "TECH-4421",
+      "name": "Marcus Chen"
+    },
+    "work_performed": "Replaced compressor A1 motor temperature PTC sensor. Verified wiring at terminal box. Checked refrigerant charge — found 2% low, added 1.5 lb R-410A. Cleaned condenser coils on circuit A side.",
+    "parts_replaced": [
+      {
+        "part_number": "00PPG000012200A",
+        "description": "Motor Temperature PTC Sensor — Circuit A",
+        "quantity": 1
+      }
+    ],
+    "resolution": "Unit returned to service. Motor temperatures within normal range after 4 hours continuous operation.",
+    "root_cause": "Failed motor temperature PTC sensor causing false high temperature reading and trip"
+  },
+  {
+    "ticket_id": "WO-2026-04291",
+    "chiller_id": "CH-ATL-003",
+    "site_id": "SITE-ATL-003",
+    "status": "open",
+    "priority": "P1",
+    "type": "emergency",
+    "opened_at": "2026-07-17T14:45:00Z",
+    "closed_at": null,
+    "reported_symptom": "Repeat A1.01 alarm on circuit A. Chiller locked out. Hospital facilities reports critical cooling load on surgical floors.",
+    "related_alarm_codes": ["A1.01"],
+    "technician": {
+      "id": "TECH-4421",
+      "name": "Marcus Chen"
+    },
+    "work_performed": "",
+    "parts_replaced": [],
+    "resolution": "",
+    "root_cause": ""
+  },
+  {
+    "ticket_id": "WO-2026-03812",
+    "chiller_id": "CH-DAL-002",
+    "site_id": "SITE-DAL-002",
+    "status": "in_progress",
+    "priority": "P1",
+    "type": "emergency",
+    "opened_at": "2026-07-16T22:30:00Z",
+    "closed_at": null,
+    "reported_symptom": "High condenser pressure trip alarm 207. Data hall B experiencing elevated chilled water temps.",
+    "related_alarm_codes": ["207"],
+    "technician": {
+      "id": "TECH-2890",
+      "name": "Diana Reyes"
+    },
+    "work_performed": "On site. Found cooling tower fan 2 not running. Investigating VFD fault.",
+    "parts_replaced": [],
+    "resolution": "",
+    "root_cause": ""
+  },
+  {
+    "ticket_id": "WO-2026-02104",
+    "chiller_id": "CH-ATL-001",
+    "site_id": "SITE-ATL-001",
+    "status": "closed",
+    "priority": "P3",
+    "type": "preventive",
+    "opened_at": "2026-06-15T08:00:00Z",
+    "closed_at": "2026-06-15T16:30:00Z",
+    "reported_symptom": "Scheduled ServiceEdge Advance preventive maintenance visit.",
+    "related_alarm_codes": [],
+    "technician": {
+      "id": "TECH-3310",
+      "name": "James Okonkwo"
+    },
+    "work_performed": "Completed annual PM per ServiceEdge checklist. Cleaned condenser coils both circuits. Verified oil levels, checked contactor pitting, tested safety circuits. Updated NetCtrl firmware to v7.2.1.",
+    "parts_replaced": [
+      {
+        "part_number": "00PPG000003100F",
+        "description": "Oil Filter — Circuit A",
+        "quantity": 1
+      }
+    ],
+    "resolution": "PM complete. Unit operating within normal parameters.",
+    "root_cause": "N/A — scheduled maintenance"
+  },
+  {
+    "ticket_id": "WO-2026-04055",
+    "chiller_id": "CH-PHX-005",
+    "site_id": "SITE-PHX-005",
+    "status": "open",
+    "priority": "P2",
+    "type": "corrective",
+    "opened_at": "2026-07-17T12:30:00Z",
+    "closed_at": null,
+    "reported_symptom": "Chiller offline. Co.A1 communication fault on compressor board A1. Fab process cooling on backup unit.",
+    "related_alarm_codes": ["Co.A1"],
+    "technician": {
+      "id": "TECH-6102",
+      "name": "Robert Vasquez"
+    },
+    "work_performed": "Dispatched. Initial remote diagnostics show LEN bus fault at SPM board A1.",
+    "parts_replaced": [],
+    "resolution": "",
+    "root_cause": ""
+  },
+  {
+    "ticket_id": "WO-2025-09432",
+    "chiller_id": "CH-DAL-002",
+    "site_id": "SITE-DAL-002",
+    "status": "closed",
+    "priority": "P2",
+    "type": "corrective",
+    "opened_at": "2025-09-22T14:00:00Z",
+    "closed_at": "2025-09-23T11:30:00Z",
+    "reported_symptom": "Alarm 207 high condenser pressure trip during peak load. Cooling tower approach temperature elevated.",
+    "related_alarm_codes": ["207"],
+    "technician": {
+      "id": "TECH-2890",
+      "name": "Diana Reyes"
+    },
+    "work_performed": "Found cooling tower fan 3 VFD in fault state. Reset VFD, replaced failed 15HP fan motor on cell 3. Cleaned tower fill and basin. Verified condenser water flow at 1,240 GPM. Confirmed delta-T returned to 8°F.",
+    "parts_replaced": [
+      {
+        "part_number": "00PPG000045600B",
+        "description": "Cooling Tower Fan Motor 15HP",
+        "quantity": 1
+      }
+    ],
+    "resolution": "Chiller returned to full load. Condenser pressure stable under peak conditions.",
+    "root_cause": "Failed cooling tower fan motor causing reduced heat rejection and high condenser pressure"
+  },
+  {
+    "ticket_id": "WO-2024-06781",
+    "chiller_id": "CH-DAL-002",
+    "site_id": "SITE-DAL-002",
+    "status": "closed",
+    "priority": "P3",
+    "type": "corrective",
+    "opened_at": "2024-08-14T09:15:00Z",
+    "closed_at": "2024-08-14T17:45:00Z",
+    "reported_symptom": "Intermittent alarm 207 during afternoon peak. Condenser pressure transducer reading 2 psi high vs gauge.",
+    "related_alarm_codes": ["207"],
+    "technician": {
+      "id": "TECH-1845",
+      "name": "Kevin Park"
+    },
+    "work_performed": "Calibrated condenser pressure transducer against manifold gauge. Found transducer drift of +2.1 psi. Replaced transducer. Verified cooling tower water treatment levels and strainer differential pressure.",
+    "parts_replaced": [
+      {
+        "part_number": "00PPG000008900C",
+        "description": "Condenser Pressure Transducer",
+        "quantity": 1
+      }
+    ],
+    "resolution": "Unit stable. No repeat trips after 72-hour monitoring.",
+    "root_cause": "Drifted condenser pressure transducer causing premature high pressure cutout"
+  },
+  {
+    "ticket_id": "WO-2025-03120",
+    "chiller_id": "CH-PHX-005",
+    "site_id": "SITE-PHX-005",
+    "status": "closed",
+    "priority": "P2",
+    "type": "corrective",
+    "opened_at": "2025-04-03T16:20:00Z",
+    "closed_at": "2025-04-04T10:00:00Z",
+    "reported_symptom": "Co.A1 communication fault on compressor board A1. Unit would not start after power outage.",
+    "related_alarm_codes": ["Co.A1"],
+    "technician": {
+      "id": "TECH-6102",
+      "name": "Robert Vasquez"
+    },
+    "work_performed": "Inspected LEN bus wiring from MBB to SPM board A1. Found loose terminal at TB3 pin 7. Tightened connections and verified 24 VAC at SPM. Restored communication without board replacement.",
+    "parts_replaced": [],
+    "resolution": "Communication restored. Unit started and ran 6 hours under load without fault.",
+    "root_cause": "Loose LEN bus terminal connection at TB3 after electrical storm power surge"
+  },
+  {
+    "ticket_id": "WO-2024-11205",
+    "chiller_id": "CH-PHX-005",
+    "site_id": "SITE-PHX-005",
+    "status": "closed",
+    "priority": "P1",
+    "type": "corrective",
+    "opened_at": "2024-11-18T08:45:00Z",
+    "closed_at": "2024-11-19T15:30:00Z",
+    "reported_symptom": "Repeat Co.A1 faults on circuit A1. Scroll protection module not responding to control bus commands.",
+    "related_alarm_codes": ["Co.A1"],
+    "technician": {
+      "id": "TECH-5844",
+      "name": "Angela Morales"
+    },
+    "work_performed": "Verified LEN bus termination and cable continuity. Replaced failed SPM board on circuit A1. Updated firmware on replacement board to match MBB revision. Performed LEN bus scan — all modules responding.",
+    "parts_replaced": [
+      {
+        "part_number": "00PPG000019800D",
+        "description": "Scroll Protection Module — Circuit A1",
+        "quantity": 1
+      }
+    ],
+    "resolution": "Unit returned to service. No communication faults in 30-day follow-up.",
+    "root_cause": "Failed scroll protection module on circuit A1"
+  },
+  {
+    "ticket_id": "WO-2025-07654",
+    "chiller_id": "CH-CHI-004",
+    "site_id": "SITE-CHI-004",
+    "status": "closed",
+    "priority": "P2",
+    "type": "corrective",
+    "opened_at": "2025-07-22T13:00:00Z",
+    "closed_at": "2025-07-23T09:15:00Z",
+    "reported_symptom": "Compressor A1 motor temperature high alarm A1.01 during heat wave. Office building reports warm floors on north wing.",
+    "related_alarm_codes": ["A1.01"],
+    "technician": {
+      "id": "TECH-5587",
+      "name": "Sarah Mitchell"
+    },
+    "work_performed": "Motor PTC sensor tested in range. Found severely fouled condenser coils on circuit A — cottonwood debris blocking airflow. Performed chemical coil cleaning. Verified all condenser fans at full speed. Motor winding temps normalized within 2 hours.",
+    "parts_replaced": [],
+    "resolution": "Unit returned to service. Motor temperatures 15°F below trip threshold under full load.",
+    "root_cause": "Restricted condenser airflow from fouled coils causing elevated head pressure and motor temperature"
+  },
+  {
+    "ticket_id": "WO-2025-08990",
+    "chiller_id": "CH-ATL-001",
+    "site_id": "SITE-ATL-001",
+    "status": "closed",
+    "priority": "P3",
+    "type": "corrective",
+    "opened_at": "2025-03-10T10:30:00Z",
+    "closed_at": "2025-03-10T14:00:00Z",
+    "reported_symptom": "Brief B2.03 high pressure alarm circuit B during morning startup. Self-cleared before technician arrival.",
+    "related_alarm_codes": ["B2.03"],
+    "technician": {
+      "id": "TECH-3310",
+      "name": "James Okonkwo"
+    },
+    "work_performed": "Reviewed alarm history and trend data. Found transient high head pressure during rapid load ramp. Verified refrigerant charge and condenser fan operation. No parts required.",
+    "parts_replaced": [],
+    "resolution": "Transient event — no recurrence after 2-week monitoring.",
+    "root_cause": "Transient high head pressure during rapid morning load ramp — within acceptable operating envelope"
+  },
+  {
+    "ticket_id": "WO-2026-03550",
+    "chiller_id": "CH-DAL-002",
+    "site_id": "SITE-DAL-002",
+    "status": "closed",
+    "priority": "P3",
+    "type": "preventive",
+    "opened_at": "2026-05-20T07:00:00Z",
+    "closed_at": "2026-05-20T18:00:00Z",
+    "reported_symptom": "Scheduled annual cooling tower and condenser water loop inspection.",
+    "related_alarm_codes": [],
+    "technician": {
+      "id": "TECH-2890",
+      "name": "Diana Reyes"
+    },
+    "work_performed": "Inspected cooling tower fill, basin, and drift eliminators. Serviced all fan VFDs. Verified water treatment chemical levels. Cleaned condenser water strainers. Calibrated condenser pressure transducer.",
+    "parts_replaced": [],
+    "resolution": "PM complete. Tower and condenser loop operating within design parameters.",
+    "root_cause": "N/A — scheduled maintenance"
+  }
+]

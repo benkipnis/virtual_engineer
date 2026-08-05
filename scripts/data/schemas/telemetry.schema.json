@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "telemetry.schema.json",
+  "title": "telemetry",
+  "description": "MongoDB time series collection: timeField=timestamp, metaField=chiller_id",
+  "type": "object",
+  "required": ["chiller_id", "timestamp", "readings"],
+  "properties": {
+    "chiller_id": { "type": "string" },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "readings": {
+      "type": "object",
+      "properties": {
+        "leaving_chilled_water_f": { "type": "number" },
+        "entering_chilled_water_f": { "type": "number" },
+        "leaving_condenser_water_f": { "type": "number" },
+        "saturated_condensing_temp_f": { "type": "number" },
+        "saturated_suction_temp_f": { "type": "number" },
+        "discharge_temp_f": { "type": "number" },
+        "bearing_temp_f": { "type": "number" },
+        "motor_winding_temp_f": { "type": "number" },
+        "discharge_pressure_psig": { "type": "number" },
+        "suction_pressure_psig": { "type": "number" },
+        "percent_line_current": { "type": "number" },
+        "line_voltage_v": { "type": "number" },
+        "percent_capacity": { "type": "number" },
+        "unit_run_status": { "type": "integer", "enum": [0, 1, 2, 3] },
+        "compressor_starts": { "type": "integer" },
+        "run_hours": { "type": "number" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

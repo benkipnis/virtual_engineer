@@ -1,0 +1,314 @@
+:root {
+  --mongo-green: #00ed64;
+  --mongo-green-dark: #00684a;
+  --mongo-forest: #023430;
+  --mongo-slate: #001e2b;
+  --mongo-gray: #5c6c75;
+  --mongo-light: #f5f7fa;
+  --mongo-border: #e8edeb;
+  --mongo-white: #ffffff;
+  --mongo-danger: #db3030;
+  --font: "Inter", system-ui, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font);
+  background: var(--mongo-light);
+  color: var(--mongo-slate);
+  -webkit-font-smoothing: antialiased;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+input,
+textarea {
+  font-family: inherit;
+}
+
+.app-header {
+  background: var(--mongo-slate);
+  color: var(--mongo-white);
+  padding: 1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.app-header .subtitle {
+  font-size: 0.8rem;
+  color: var(--mongo-green);
+  margin-top: 0.15rem;
+}
+
+.tab-bar {
+  display: flex;
+  gap: 0;
+  background: var(--mongo-white);
+  border-bottom: 1px solid var(--mongo-border);
+  padding: 0 1.5rem;
+}
+
+.tab-btn {
+  padding: 0.85rem 1.25rem;
+  border: none;
+  background: none;
+  color: var(--mongo-gray);
+  font-weight: 500;
+  font-size: 0.9rem;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+}
+
+.tab-btn.active {
+  color: var(--mongo-green-dark);
+  border-bottom-color: var(--mongo-green);
+}
+
+.tab-content {
+  padding: 1.5rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.card {
+  background: var(--mongo-white);
+  border: 1px solid var(--mongo-border);
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.card h3 {
+  margin: 0 0 0.5rem;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--mongo-gray);
+}
+
+.pattern-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.pattern-exact_find { background: #e3f2fd; color: #1565c0; }
+.pattern-aggregation_lookup { background: #f3e5f5; color: #7b1fa2; }
+.pattern-time_series_window { background: #e8f5e9; color: #2e7d32; }
+.pattern-vector_search { background: #fff3e0; color: #e65100; }
+.pattern-atlas_search { background: #fce4ec; color: #c62828; }
+.pattern-hybrid_search { background: #fff8e1; color: #f57f17; }
+.pattern-in_memory { background: #eceff1; color: #455a64; }
+.pattern-write { background: #e0f2f1; color: #00695c; }
+.pattern-not_configured { background: #ffebee; color: #b71c1c; }
+
+.query-inspector {
+  background: var(--mongo-forest);
+  color: #c8e6c9;
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  font-family: "SF Mono", "Fira Code", monospace;
+  font-size: 0.75rem;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.btn-primary {
+  background: var(--mongo-green);
+  color: var(--mongo-forest);
+  border: none;
+  border-radius: 6px;
+  padding: 0.6rem 1.2rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: var(--mongo-white);
+  color: var(--mongo-slate);
+  border: 1px solid var(--mongo-border);
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  font-weight: 500;
+  font-size: 0.85rem;
+}
+
+.btn-secondary.active {
+  border-color: var(--mongo-green-dark);
+  background: #e8faf0;
+}
+
+.chat-input-row {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.chat-input-row textarea {
+  flex: 1;
+  border: 1px solid var(--mongo-border);
+  border-radius: 6px;
+  padding: 0.6rem 0.75rem;
+  resize: vertical;
+  min-height: 44px;
+  font-size: 0.9rem;
+}
+
+.message-user {
+  background: #e8faf0;
+  border-left: 3px solid var(--mongo-green);
+  padding: 0.75rem 1rem;
+  border-radius: 0 6px 6px 0;
+  margin-bottom: 0.75rem;
+}
+
+.message-assistant {
+  background: var(--mongo-white);
+  border: 1px solid var(--mongo-border);
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  margin-bottom: 0.75rem;
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
+
+.zone-active {
+  border-color: var(--mongo-green) !important;
+  box-shadow: 0 0 0 2px rgba(0, 237, 100, 0.25);
+  animation: pulse-border 1.5s ease-in-out;
+}
+
+@keyframes pulse-border {
+  0%, 100% { box-shadow: 0 0 0 2px rgba(0, 237, 100, 0.25); }
+  50% { box-shadow: 0 0 0 4px rgba(0, 237, 100, 0.4); }
+}
+
+.activity-strip {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  padding: 0.5rem 0;
+  min-height: 2rem;
+}
+
+.xray-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 30, 43, 0.92);
+  z-index: 100;
+  overflow-y: auto;
+  padding: 2rem;
+  color: var(--mongo-white);
+}
+
+.xray-overlay h2 {
+  margin: 0 0 1rem;
+  color: var(--mongo-green);
+}
+
+.xray-timeline-item {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.xray-close {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 101;
+  background: var(--mongo-green);
+  color: var(--mongo-forest);
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  font-weight: 600;
+}
+
+.evidence-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.evidence-grid .span-2 {
+  grid-column: span 2;
+}
+
+.evidence-grid .span-3 {
+  grid-column: span 3;
+}
+
+@media (max-width: 900px) {
+  .evidence-grid {
+    grid-template-columns: 1fr;
+  }
+  .evidence-grid .span-2,
+  .evidence-grid .span-3 {
+    grid-column: span 1;
+  }
+}
+
+.pattern-summary {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.empty-zone {
+  color: var(--mongo-gray);
+  font-size: 0.85rem;
+  font-style: italic;
+}
+
+.feedback-row {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.feedback-btn {
+  border: 1px solid var(--mongo-border);
+  background: var(--mongo-white);
+  border-radius: 6px;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.85rem;
+}
+
+.feedback-btn:hover {
+  background: var(--mongo-light);
+}

@@ -1,0 +1,97 @@
+[
+  {
+    "site_id": "SITE-ATL-001",
+    "name": "Peachtree Tower",
+    "customer_name": "Brookfield Office Properties",
+    "address": {
+      "street": "191 Peachtree St NE",
+      "city": "Atlanta",
+      "state": "GA",
+      "country": "US",
+      "postal_code": "30303"
+    },
+    "timezone": "America/New_York",
+    "building_type": "commercial",
+    "service_contract": {
+      "contract_id": "SVC-ATL-2024-00891",
+      "tier": "ServiceEdge Advance",
+      "remote_monitoring_enabled": true
+    }
+  },
+  {
+    "site_id": "SITE-DAL-002",
+    "name": "Lone Star Data Center — Building 3",
+    "customer_name": "Equinix",
+    "address": {
+      "street": "1950 N Stemmons Fwy",
+      "city": "Dallas",
+      "state": "TX",
+      "country": "US",
+      "postal_code": "75207"
+    },
+    "timezone": "America/Chicago",
+    "building_type": "data_center",
+    "service_contract": {
+      "contract_id": "SVC-DAL-2023-01442",
+      "tier": "ServiceEdge Optimum",
+      "remote_monitoring_enabled": true
+    }
+  },
+  {
+    "site_id": "SITE-ATL-003",
+    "name": "Piedmont Regional Medical Center — Central Plant",
+    "customer_name": "Piedmont Healthcare",
+    "address": {
+      "street": "1968 Peachtree Rd NW",
+      "city": "Atlanta",
+      "state": "GA",
+      "country": "US",
+      "postal_code": "30309"
+    },
+    "timezone": "America/New_York",
+    "building_type": "healthcare",
+    "service_contract": {
+      "contract_id": "SVC-ATL-2022-00317",
+      "tier": "ServiceEdge Optimum",
+      "remote_monitoring_enabled": true
+    }
+  },
+  {
+    "site_id": "SITE-CHI-004",
+    "name": "Northwestern University — Technological Institute",
+    "customer_name": "Northwestern University",
+    "address": {
+      "street": "2145 Sheridan Rd",
+      "city": "Evanston",
+      "state": "IL",
+      "country": "US",
+      "postal_code": "60208"
+    },
+    "timezone": "America/Chicago",
+    "building_type": "education",
+    "service_contract": {
+      "contract_id": "SVC-CHI-2024-02105",
+      "tier": "ServiceEdge Advance",
+      "remote_monitoring_enabled": true
+    }
+  },
+  {
+    "site_id": "SITE-PHX-005",
+    "name": "Intel Ocotillo Campus — Fab 42 Chiller Yard",
+    "customer_name": "Intel Corporation",
+    "address": {
+      "street": "4500 S Dobson Rd",
+      "city": "Chandler",
+      "state": "AZ",
+      "country": "US",
+      "postal_code": "85248"
+    },
+    "timezone": "America/Phoenix",
+    "building_type": "industrial",
+    "service_contract": {
+      "contract_id": "SVC-PHX-2021-00763",
+      "tier": "ServiceEdge Optimum",
+      "remote_monitoring_enabled": true
+    }
+  }
+]

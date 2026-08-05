@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "alarm_events.schema.json",
+  "title": "alarm_events",
+  "type": "object",
+  "required": [
+    "event_id",
+    "chiller_id",
+    "alarm_code",
+    "status",
+    "raised_at",
+    "source",
+    "acknowledged"
+  ],
+  "properties": {
+    "event_id": { "type": "string" },
+    "chiller_id": { "type": "string" },
+    "alarm_code": { "type": "string" },
+    "status": { "type": "string", "enum": ["active", "cleared"] },
+    "raised_at": { "type": "string", "format": "date-time" },
+    "cleared_at": { "type": ["string", "null"], "format": "date-time" },
+    "circuit": { "type": ["string", "null"], "enum": ["A", "B", "C", null] },
+    "source": {
+      "type": "string",
+      "enum": ["controller", "remote_monitoring"]
+    },
+    "acknowledged": { "type": "boolean" },
+    "acknowledged_by": { "type": ["string", "null"] }
+  },
+  "additionalProperties": false
+}

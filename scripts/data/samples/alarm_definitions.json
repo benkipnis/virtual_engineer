@@ -1,0 +1,399 @@
+[
+  {
+    "alarm_code": "A1.01",
+    "code_format": "prefix_suffix",
+    "model_families": ["30XA", "30RB"],
+    "subsystem": "motor",
+    "severity": "critical",
+    "description": "Compressor A1 Motor Temperature Too High",
+    "reason": "Compressor motor sensor PTC resistance is greater than 4.5k ohms",
+    "control_action": "Circuit shut down or not allowed to start",
+    "reset_type": "manual",
+    "probable_causes": [
+      "Compressor failure",
+      "Wiring error to motor temperature sensor",
+      "Operation outside of design limits",
+      "Improper refrigerant charge"
+    ],
+    "diagnostic_steps": [
+      "Verify motor sensor PTC wiring and connections at compressor terminal box",
+      "Measure PTC resistance — should be 50 ohms to 4.5k ohms at operating temperature",
+      "Check refrigerant charge and condenser airflow",
+      "Inspect for restricted refrigerant flow or high discharge pressure"
+    ]
+  },
+  {
+    "alarm_code": "A1.03",
+    "code_format": "prefix_suffix",
+    "model_families": ["30XA", "30RB"],
+    "subsystem": "refrigeration",
+    "severity": "critical",
+    "description": "Compressor A1 High Pressure Switch",
+    "reason": "High pressure switch open on circuit A1",
+    "control_action": "Circuit shut down or not allowed to start",
+    "reset_type": "manual",
+    "probable_causes": [
+      "Closed or restricted discharge valve",
+      "Improper refrigerant charge",
+      "Dirty condenser coils",
+      "Failed outdoor fan motor",
+      "Discharge pressure transducer inaccuracy"
+    ],
+    "diagnostic_steps": [
+      "Verify condenser fans operating and coils clean",
+      "Check discharge pressure transducer reading against gauge",
+      "Inspect for non-condensables or overcharge",
+      "Confirm high pressure switch wiring"
+    ]
+  },
+  {
+    "alarm_code": "A1.04",
+    "code_format": "prefix_suffix",
+    "model_families": ["30XA", "30RB"],
+    "subsystem": "motor",
+    "severity": "critical",
+    "description": "Compressor A1 Motor Sensor PTC Out of Range",
+    "reason": "Compressor motor sensor PTC resistance is less than 50 ohms or greater than 17k ohms",
+    "control_action": "Circuit shut down or not allowed to start",
+    "reset_type": "manual",
+    "probable_causes": [
+      "Open or shorted PTC sensor wiring",
+      "Failed motor temperature sensor",
+      "Compressor failure"
+    ],
+    "diagnostic_steps": [
+      "Disconnect PTC sensor and measure resistance at sensor leads",
+      "Inspect wiring harness for damage at compressor and MBB",
+      "Replace sensor if resistance is out of range with verified wiring"
+    ]
+  },
+  {
+    "alarm_code": "A2.02",
+    "code_format": "prefix_suffix",
+    "model_families": ["30XA", "30RB"],
+    "subsystem": "compressor",
+    "severity": "warning",
+    "description": "Compressor A2 Crankcase Heater Failure",
+    "reason": "Crankcase heater current not detected when required or detected when not required",
+    "control_action": "Compressor shut down or not allowed to start",
+    "reset_type": "manual",
+    "probable_causes": [
+      "Failed crankcase heater element",
+      "Wiring error to crankcase heater",
+      "Failed scroll protection module (SPM)"
+    ],
+    "diagnostic_steps": [
+      "Verify crankcase heater contactor operation",
+      "Measure heater current draw during energized period",
+      "Inspect SPM board connections"
+    ]
+  },
+  {
+    "alarm_code": "Co.A1",
+    "code_format": "communication",
+    "model_families": ["30XA", "30RB"],
+    "subsystem": "communication",
+    "severity": "critical",
+    "description": "Loss of Communication with Compressor Board A1",
+    "reason": "No communication with scroll protection module on circuit A1",
+    "control_action": "Affected compressor is shut down",
+    "reset_type": "automatic",
+    "probable_causes": [
+      "LEN bus wiring fault",
+      "Failed SPM board",
+      "MBB communication module fault",
+      "Loose connection at TB3"
+    ],
+    "diagnostic_steps": [
+      "Check LEN bus wiring between MBB and SPM board",
+      "Verify 24 VAC power to SPM board",
+      "Inspect NetCtrl/LEN connections at TB3",
+      "Replace SPM board if communication not restored"
+    ]
+  },
+  {
+    "alarm_code": "207",
+    "code_format": "numeric_protective",
+    "model_families": ["19XR", "19XRV"],
+    "subsystem": "refrigeration",
+    "severity": "critical",
+    "description": "High Condenser Pressure Cutout",
+    "reason": "Condenser pressure exceeded protective limit during operation",
+    "control_action": "Chiller shutdown — protective trip",
+    "reset_type": "manual",
+    "probable_causes": [
+      "Insufficient condenser water flow",
+      "Fouled condenser tubes",
+      "High ambient wet bulb temperature",
+      "Non-condensables in system"
+    ],
+    "diagnostic_steps": [
+      "Verify cooling tower operation and condenser water delta-T",
+      "Check condenser pressure transducer calibration",
+      "Inspect water-side strainers and isolation valves",
+      "Review recent refrigerant service history"
+    ]
+  },
+  {
+    "alarm_code": "208",
+    "code_format": "numeric_protective",
+    "model_families": ["19XR", "19XRV"],
+    "subsystem": "motor",
+    "severity": "critical",
+    "description": "Excessive Compressor Motor Amps",
+    "reason": "Motor current exceeded maximum allowable during operation",
+    "control_action": "Chiller shutdown — protective trip",
+    "reset_type": "manual",
+    "probable_causes": [
+      "High lift or condenser pressure",
+      "Mechanical damage to compressor",
+      "Voltage imbalance",
+      "Single phasing"
+    ],
+    "diagnostic_steps": [
+      "Measure line voltage and current on all three phases",
+      "Check for voltage imbalance greater than 2%",
+      "Review condenser pressure and evaporator temperature at trip",
+      "Perform megohm test on motor windings"
+    ]
+  },
+  {
+    "alarm_code": "215",
+    "code_format": "numeric_protective",
+    "model_families": ["19XR", "19XRV"],
+    "subsystem": "electrical",
+    "severity": "warning",
+    "description": "Line Current Unbalance",
+    "reason": "Line current unbalance exceeded allowable threshold",
+    "control_action": "Alert — unit may continue with caution",
+    "reset_type": "automatic",
+    "probable_causes": [
+      "Utility voltage unbalance",
+      "Loose power connection",
+      "Uneven contactor pole resistance"
+    ],
+    "diagnostic_steps": [
+      "Measure line current on all three phases at full load",
+      "Check line voltage unbalance at disconnect",
+      "Tighten all power connections at starter and compressor"
+    ]
+  },
+  {
+    "alarm_code": "B1.07",
+    "code_format": "prefix_suffix",
+    "model_families": ["30XA", "30RB"],
+    "subsystem": "refrigeration",
+    "severity": "warning",
+    "description": "Circuit B1 Low Suction Pressure",
+    "reason": "Suction pressure below minimum operating threshold",
+    "control_action": "Circuit capacity reduced or shutdown",
+    "reset_type": "automatic",
+    "probable_causes": [
+      "Low refrigerant charge",
+      "Restricted expansion valve",
+      "Low evaporator flow",
+      "Frozen evaporator"
+    ],
+    "diagnostic_steps": [
+      "Verify chilled water flow and delta-T across evaporator",
+      "Check suction pressure transducer reading",
+      "Inspect expansion valve superheat setting",
+      "Look for signs of low charge or leak"
+    ]
+  },
+  {
+    "alarm_code": "C1.12",
+    "code_format": "prefix_suffix",
+    "model_families": ["30XA"],
+    "subsystem": "controls",
+    "severity": "alert",
+    "description": "Chilled Water Flow Loss",
+    "reason": "Chilled water flow switch open while unit commanded to run",
+    "control_action": "Unit shutdown",
+    "reset_type": "automatic",
+    "probable_causes": [
+      "Chilled water pump off or failed",
+      "Closed isolation valve",
+      "Dirty strainer causing low flow",
+      "Flow switch failure"
+    ],
+    "diagnostic_steps": [
+      "Verify chilled water pump operation",
+      "Check isolation valve positions",
+      "Clean strainer and verify flow rate",
+      "Test flow switch operation"
+    ]
+  },
+  {
+    "alarm_code": "A1.05",
+    "code_format": "prefix_suffix",
+    "model_families": ["30XA", "30RB"],
+    "subsystem": "electrical",
+    "severity": "warning",
+    "description": "Compressor A1 Power Reset",
+    "reason": "24-VAC power lost to SPM board",
+    "control_action": "Compressor shut down or not allowed to start",
+    "reset_type": "automatic",
+    "probable_causes": [
+      "Low voltage from main power supply",
+      "Transformer fault",
+      "Control power fuse blown"
+    ],
+    "diagnostic_steps": [
+      "Measure 24 VAC at SPM board power input",
+      "Check control power transformer and fuses",
+      "Verify main power supply stability"
+    ]
+  },
+  {
+    "alarm_code": "217",
+    "code_format": "numeric_protective",
+    "model_families": ["19XR", "19XRV"],
+    "subsystem": "motor",
+    "severity": "critical",
+    "description": "Motor Overload Trip",
+    "reason": "Motor thermal overload protection activated",
+    "control_action": "Chiller shutdown — protective trip",
+    "reset_type": "manual",
+    "probable_causes": [
+      "Sustained high motor amps",
+      "Failed overload relay",
+      "Motor winding deterioration"
+    ],
+    "diagnostic_steps": [
+      "Allow motor to cool and verify overload reset",
+      "Review motor amp history prior to trip",
+      "Test motor insulation resistance",
+      "Inspect starter overload settings against nameplate"
+    ]
+  },
+  {
+    "alarm_code": "220",
+    "code_format": "numeric_protective",
+    "model_families": ["19XR", "19XRV"],
+    "subsystem": "electrical",
+    "severity": "critical",
+    "description": "Ground Fault Trip",
+    "reason": "Ground fault current detected between output phases and ground",
+    "control_action": "Chiller shutdown — immediate trip",
+    "reset_type": "manual",
+    "probable_causes": [
+      "Motor winding short to ground",
+      "Damaged power cable insulation",
+      "Moisture in motor junction box"
+    ],
+    "diagnostic_steps": [
+      "Perform megohm test on motor windings phase to ground",
+      "Inspect power cables and junction box for moisture or damage",
+      "Do not restart until ground fault source is identified"
+    ]
+  },
+  {
+    "alarm_code": "B2.03",
+    "code_format": "prefix_suffix",
+    "model_families": ["30XA", "30RB"],
+    "subsystem": "condenser",
+    "severity": "warning",
+    "description": "Circuit B2 High Condensing Temperature",
+    "reason": "Saturated condensing temperature exceeded alarm threshold",
+    "control_action": "Circuit capacity limited",
+    "reset_type": "automatic",
+    "probable_causes": [
+      "High ambient temperature",
+      "Reduced condenser airflow",
+      "Dirty condenser coils",
+      "Overcharge"
+    ],
+    "diagnostic_steps": [
+      "Verify all condenser fans operating at full speed",
+      "Clean condenser coils",
+      "Check ambient temperature against design conditions",
+      "Verify refrigerant charge"
+    ]
+  },
+  {
+    "alarm_code": "C2.01",
+    "code_format": "prefix_suffix",
+    "model_families": ["30XA", "30RB"],
+    "subsystem": "refrigeration",
+    "severity": "alert",
+    "description": "Cooler Freeze Protection",
+    "reason": "Chilled water loop temperature below freeze protection setpoint",
+    "control_action": "Cooler heater energized; unit may lock out",
+    "reset_type": "automatic",
+    "probable_causes": [
+      "Chilled water flow loss with unit running",
+      "Cooler heater failure",
+      "Ambient temperature below design"
+    ],
+    "diagnostic_steps": [
+      "Verify cooler heater operation",
+      "Check chilled water flow and pump status",
+      "Confirm freeze protection setpoint configuration"
+    ]
+  },
+  {
+    "alarm_code": "209",
+    "code_format": "numeric_protective",
+    "model_families": ["19XR", "19XRV"],
+    "subsystem": "electrical",
+    "severity": "critical",
+    "description": "Line Phase Loss",
+    "reason": "One or more line phases lost during operation",
+    "control_action": "Chiller shutdown — protective trip",
+    "reset_type": "manual",
+    "probable_causes": [
+      "Utility power interruption",
+      "Blown fuse on one phase",
+      "Loose connection at disconnect"
+    ],
+    "diagnostic_steps": [
+      "Measure voltage on all three phases at unit disconnect",
+      "Check fuses and contactor poles",
+      "Verify utility power stability before restart"
+    ]
+  },
+  {
+    "alarm_code": "A2.01",
+    "code_format": "prefix_suffix",
+    "model_families": ["30XA", "30RB"],
+    "subsystem": "motor",
+    "severity": "critical",
+    "description": "Compressor A2 Motor Temperature Too High",
+    "reason": "Compressor motor sensor PTC resistance is greater than 4.5k ohms on circuit A2",
+    "control_action": "Circuit shut down or not allowed to start",
+    "reset_type": "manual",
+    "probable_causes": [
+      "Compressor failure",
+      "Wiring error",
+      "Operation outside of limits",
+      "Improper refrigerant charge"
+    ],
+    "diagnostic_steps": [
+      "Verify motor sensor PTC wiring on circuit A2",
+      "Measure PTC resistance at compressor terminal box",
+      "Check refrigerant charge and operating pressures"
+    ]
+  },
+  {
+    "alarm_code": "Vx-14",
+    "code_format": "communication",
+    "model_families": ["30XA", "30RB"],
+    "subsystem": "electrical",
+    "severity": "critical",
+    "description": "VFD Earth Ground Fault",
+    "reason": "Earth (ground) fault current exists between output phases and ground",
+    "control_action": "Drive shutdown",
+    "reset_type": "manual",
+    "probable_causes": [
+      "Motor short to ground",
+      "Damaged motor cable",
+      "Moisture in drive or motor junction box"
+    ],
+    "diagnostic_steps": [
+      "Inspect motor and cable insulation",
+      "Check for moisture at drive output terminals",
+      "Megohm test motor before restart"
+    ]
+  }
+]

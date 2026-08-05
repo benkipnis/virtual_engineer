@@ -1,0 +1,122 @@
+[
+  {
+    "doc_id": "KB-30XA-A1.01-MOTOR",
+    "type": "troubleshooting_guide",
+    "title": "30XA Compressor A1 Motor Temperature Too High",
+    "model_families": ["30XA", "30RB"],
+    "subsystem": "motor",
+    "alarm_codes": ["A1.01", "A1.04"],
+    "source": "OEM 30XA Operations Manual — Table 59",
+    "content": "Alarm A1.01 indicates compressor motor sensor PTC resistance exceeds 4.5k ohms. Circuit is shut down or not allowed to start. Probable causes include compressor failure, wiring error to motor temperature sensor, operation outside design limits, and improper refrigerant charge. Diagnostic steps: verify PTC wiring at compressor terminal box; measure PTC resistance (50 ohms to 4.5k ohms at operating temperature); check refrigerant charge and condenser airflow; inspect for restricted refrigerant flow or high discharge pressure."
+  },
+  {
+    "doc_id": "KB-30XA-A1.03-HP",
+    "type": "troubleshooting_guide",
+    "title": "30XA High Pressure Switch Circuit A1",
+    "model_families": ["30XA", "30RB"],
+    "subsystem": "refrigeration",
+    "alarm_codes": ["A1.03"],
+    "source": "OEM 30XA Operations Manual — Table 59",
+    "content": "High pressure switch open on circuit A1. Verify condenser fans operating and coils clean. Check discharge pressure transducer against gauge. Inspect for non-condensables or overcharge. Confirm high pressure switch wiring."
+  },
+  {
+    "doc_id": "KB-30XA-MOTOR-PM",
+    "type": "manual",
+    "title": "30XA Compressor Motor Temperature Sensor Maintenance",
+    "model_families": ["30XA"],
+    "subsystem": "motor",
+    "alarm_codes": ["A1.01", "A1.04"],
+    "source": "OEM 30XA Service Manual — Motor Sensors",
+    "content": "Motor temperature protection uses PTC sensors on each compressor circuit. Sensor part number 00PPG000012200A for circuit A. Replace sensor when resistance is out of range (less than 50 ohms or greater than 17k ohms). After replacement, verify wiring continuity and run unit under load for 4 hours monitoring motor winding temperature."
+  },
+  {
+    "doc_id": "KB-30RB-CO-A1-COMM",
+    "type": "technical_bulletin",
+    "title": "Loss of Communication with Compressor Board A1",
+    "model_families": ["30XA", "30RB"],
+    "subsystem": "communication",
+    "alarm_codes": ["Co.A1"],
+    "source": "OEM Technical Bulletin TB-30RB-LEN-042",
+    "content": "Alarm Co.A1 indicates loss of LEN bus communication with scroll protection module on circuit A1. Check LEN bus wiring between MBB and SPM board. Verify 24 VAC power to SPM. Inspect NetCtrl/LEN connections at TB3. Replace SPM board if communication not restored after wiring verification."
+  },
+  {
+    "doc_id": "KB-19XR-207-COND",
+    "type": "troubleshooting_guide",
+    "title": "19XR High Condenser Pressure Cutout",
+    "model_families": ["19XR", "19XRV"],
+    "subsystem": "refrigeration",
+    "alarm_codes": ["207"],
+    "source": "OEM 19XR Protective Limits Guide",
+    "content": "Protective trip 207 — high condenser pressure. Verify cooling tower operation and condenser water delta-T. Check condenser pressure transducer calibration. Inspect water-side strainers and isolation valves. Review recent refrigerant service history for non-condensables."
+  },
+  {
+    "doc_id": "KB-19XR-215-UNBALANCE",
+    "type": "technical_bulletin",
+    "title": "Line Current Unbalance Advisory",
+    "model_families": ["19XR", "19XRV"],
+    "subsystem": "electrical",
+    "alarm_codes": ["215"],
+    "source": "OEM 19XR Electrical Diagnostics Bulletin",
+    "content": "Alarm 215 indicates line current unbalance exceeded threshold. Measure line current on all three phases at full load. Check line voltage unbalance at disconnect. Tighten all power connections at starter and compressor."
+  },
+  {
+    "doc_id": "KB-30XA-FREEZE",
+    "type": "manual",
+    "title": "Chilled Water Flow and Freeze Protection",
+    "model_families": ["30XA"],
+    "subsystem": "controls",
+    "alarm_codes": ["C1.12", "C2.01"],
+    "source": "OEM 30XA Operations Manual — Flow Protection",
+    "content": "Chilled water flow loss and freeze protection alarms require verified pump operation, open isolation valves, and clean strainers. Flow switch must close before unit start command. Cooler heater must energize when loop temperature approaches freeze protection setpoint."
+  },
+  {
+    "doc_id": "KB-30XA-COND-MAINT",
+    "type": "manual",
+    "title": "Condenser Coil Cleaning and Airflow",
+    "model_families": ["30XA", "30RB"],
+    "subsystem": "condenser",
+    "alarm_codes": ["A1.03", "B2.03"],
+    "source": "OEM ServiceEdge Preventive Maintenance Checklist",
+    "content": "Dirty condenser coils are a leading cause of high head pressure and motor temperature alarms. Clean coils at least annually or when approach temperature exceeds design. Verify all condenser fans operate at full speed. Check for obstructions in discharge air path."
+  },
+  {
+    "doc_id": "KB-19XR-COOLING-TOWER",
+    "type": "technical_bulletin",
+    "title": "Cooling Tower Fan VFD Fault Diagnostics",
+    "model_families": ["19XR", "19XRV"],
+    "subsystem": "condenser",
+    "alarm_codes": ["207"],
+    "source": "OEM Technical Bulletin TB-19XR-CT-018",
+    "content": "High condenser pressure alarm 207 is frequently caused by cooling tower heat rejection failure. Check each tower cell fan for VFD fault codes. Verify fan motor amp draw matches nameplate. Inspect belt tension on belt-driven fans. Confirm basin water level and fill valve operation. A single failed fan can raise condenser approach temperature 4-6°F under peak load."
+  },
+  {
+    "doc_id": "KB-30RB-LEN-WIRING",
+    "type": "manual",
+    "title": "LEN Bus Wiring and Terminal Inspection Guide",
+    "model_families": ["30RB", "30XA"],
+    "subsystem": "communication",
+    "alarm_codes": ["Co.A1", "Co.B1"],
+    "source": "OEM 30RB Service Manual — LEN Bus Chapter",
+    "content": "The Local Equipment Network (LEN) bus connects the main building board (MBB) to scroll protection modules (SPM) on each compressor circuit. Communication faults typically result from loose terminals at TB3, damaged bus cable, or missing 120 ohm termination resistor. Inspection procedure: power down unit, verify continuity on LEN+ and LEN- pairs, check 24 VAC at SPM terminals, re-seat all connections at MBB and SPM terminal blocks."
+  },
+  {
+    "doc_id": "KB-19XR-COND-WATER",
+    "type": "troubleshooting_guide",
+    "title": "19XR Condenser Water Loop Troubleshooting",
+    "model_families": ["19XR", "19XRV"],
+    "subsystem": "refrigeration",
+    "alarm_codes": ["207", "208"],
+    "source": "OEM 19XR Water-Cooled Operations Guide",
+    "content": "Water-cooled 19XR units depend on condenser water loop performance for stable operation. Target condenser water delta-T is 8-10°F. Low delta-T indicates excess flow or tower bypass. High delta-T indicates insufficient flow — check pump operation, strainer differential, and isolation valve positions. Condenser pressure transducer calibration should be verified annually against a manifold gauge."
+  },
+  {
+    "doc_id": "KB-30RB-SPM-REPLACE",
+    "type": "technical_bulletin",
+    "title": "Scroll Protection Module Replacement Procedure",
+    "model_families": ["30RB"],
+    "subsystem": "communication",
+    "alarm_codes": ["Co.A1", "Co.B1"],
+    "source": "OEM Technical Bulletin TB-30RB-SPM-011",
+    "content": "When LEN bus wiring verification does not restore communication, replace the scroll protection module (SPM) for the affected circuit. Part number varies by circuit — verify against unit nameplate. After replacement, match firmware revision to MBB. Perform LEN bus scan from service port to confirm all modules respond. Allow 15 minutes for auto-addressing before attempting start."
+  }
+]

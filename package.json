@@ -1,0 +1,25 @@
+{
+  "name": "virtual-engineer",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "description": "Virtual Engineer — AI troubleshooting demo with MongoDB Atlas",
+  "scripts": {
+    "seed": "node scripts/data/seed/load-sample-data.js",
+    "seed:drop": "node scripts/data/seed/load-sample-data.js --drop",
+    "generate:telemetry": "node scripts/data/generate-telemetry.js",
+    "mcp:dev": "node backend/src/index.js",
+    "dev:backend": "node backend/src/index.js",
+    "dev:frontend": "npm run dev --prefix frontend",
+    "dev": "npm run mcp:dev",
+    "test:connectivity": "node --test tests/connectivity/*.test.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "dotenv": "^16.4.7",
+    "express": "^5.2.1",
+    "mongodb": "^6.16.0",
+    "zod": "^4.4.3"
+  }
+}
