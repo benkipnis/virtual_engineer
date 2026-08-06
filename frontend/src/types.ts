@@ -9,11 +9,18 @@ export type QueryPattern =
   | "write"
   | "not_configured";
 
+export interface RankFusionLegDetail {
+  pipeline: string;
+  rank: number | null;
+  weight: number;
+}
+
 export interface QueryInsight {
   pattern: QueryPattern;
   collection: string;
   index?: string;
   query_excerpt: string;
+  rank_fusion_legs?: RankFusionLegDetail[];
 }
 
 export interface ToolEvent {
@@ -57,8 +64,8 @@ export const SCENARIOS: Scenario[] = [
     alarm: "A1.01",
     description: "30XA at Piedmont Hospital — repeat compressor motor temp fault with prior PTC replacement.",
     prompts: [
-      "I'm on site at CH-ATL-003. The unit tripped on A1.01 again. What should I check first?",
-      "Show me telemetry trends and prior service history for this chiller.",
+      "I'm on site at CH-ATL-003. What should I check first?",
+      "Show me telemetry trends and prior service history for CH-ATL-003.",
     ],
   },
   {
@@ -68,7 +75,7 @@ export const SCENARIOS: Scenario[] = [
     description: "19XR water-cooled unit — alarm 207, cooling tower fan issue suspected.",
     prompts: [
       "CH-DAL-002 tripped on alarm 207. Data hall temps are rising. Help me troubleshoot.",
-      "Have we seen this condenser pressure issue on this unit before?",
+      "Have we seen this condenser pressure issue on CH-DAL-002 before?",
     ],
   },
   {
@@ -78,7 +85,7 @@ export const SCENARIOS: Scenario[] = [
     description: "30RB at semiconductor fab — Co.A1 LEN bus communication loss.",
     prompts: [
       "CH-PHX-005 is offline with Co.A1 communication fault. What's the likely cause?",
-      "Find similar communication fault cases and relevant technical bulletins.",
+      "Find similar communication fault cases and relevant technical bulletins for CH-PHX-005.",
     ],
   },
   {

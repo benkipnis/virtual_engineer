@@ -79,13 +79,11 @@ export function buildEvidenceUpdate(toolName, toolResult) {
   return { zone, tool: toolName, summary, evidence_refs: toolResult.evidence_refs || [] };
 }
 
-async function callOpenAi({ apiKey, model, messages, tools }) {
-  const res = await fetch("https://api.openai.com/v1/chat/completions", {
+async function callOpenAi({ baseUrl, headers, model, messages, tools }) {
+  const url = `${baseUrl.replace(/\/$/, "")}/chat/completions`;
+  const res = await fetch(url, {
     method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
+    headers,
     body: JSON.stringify({
       model,
       messages,
@@ -103,14 +101,11 @@ async function callOpenAi({ apiKey, model, messages, tools }) {
   return res.body;
 }
 
-async function callAnthropic({ apiKey, model, messages, tools, system }) {
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
+async function callAnthropic({ baseUrl, headers, model, messages, tools, system }) {
+  const url = `${baseUrl.replace(/\/$/, "")}/messages`;
+  const res = await fetch(url, {
     method: "POST",
-    headers: {
-      "x-api-key": apiKey,
-      "anthropic-version": "2023-06-01",
-      "Content-Type": "application/json",
-    },
+    headers,
     body: JSON.stringify({
       model,
       max_tokens: 4096,
@@ -181,7 +176,7 @@ export async function runAgent({ mcpClient, llmConfig, userMessage, chillerId, o
   const emit = (type, payload) => onEvent?.({ type, ...payload });
 
   const tools =
-    llmConfig.provider === "anthropic"
+    llmConfig.protocol === "anthropic"
       ? mcpClient.toAnthropicTools()
       : mcpClient.toOpenAiTools();
 
@@ -190,7 +185,7 @@ export async function runAgent({ mcpClient, llmConfig, userMessage, chillerId, o
     : "";
 
   const messages =
-    llmConfig.provider === "openai"
+    llmConfig.protocol === "openai"
       ? [
           { role: "system", content: SYSTEM_PROMPT + contextNote },
           { role: "user", content: userMessage },
@@ -204,30 +199,32 @@ export async function runAgent({ mcpClient, llmConfig, userMessage, chillerId, o
     step += 1;
 
     const streamBody =
-      llmConfig.provider === "anthropic"
+      llmConfig.protocol === "anthropic"
         ? await callAnthropic({
-            apiKey: llmConfig.apiKey,
+            baseUrl: llmConfig.baseUrl,
+            headers: llmConfig.headers,
             model: llmConfig.model,
             messages,
             tools,
             system: SYSTEM_PROMPT + contextNote,
           })
         : await callOpenAi({
-            apiKey: llmConfig.apiKey,
+            baseUrl: llmConfig.baseUrl,
+            headers: llmConfig.headers,
             model: llmConfig.model,
             messages,
             tools,
           });
 
     const stream =
-      llmConfig.provider === "anthropic"
+      llmConfig.protocol === "anthropic"
         ? parseAnthropicStream(streamBody)
         : parseOpenAiStream(streamBody);
 
     let assistantText = "";
     const toolCalls = [];
 
-    if (llmConfig.provider === "openai") {
+    if (llmConfig.protocol === "openai") {
       const toolCallAccum = {};
 
       for await (const chunk of stream) {

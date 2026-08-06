@@ -14,7 +14,7 @@
 - [x] knowledge_documents seed data
 - [x] searchManuals, searchTroubleshootingGuides, searchTechnicalBulletins
 - [x] filterCases, searchCaseNotes, rerank tools
-- [x] Atlas autoEmbed query.text (regex fallback)
+- [x] Atlas autoEmbed query.text hybrid search via `$rankFusion` (superseded regex fallback)
 
 ## Phase D — Session / feedback
 - [x] startTroubleshootingSession, storeRecommendationTrace

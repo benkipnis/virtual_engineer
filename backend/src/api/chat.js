@@ -11,8 +11,17 @@ function sseWrite(res, event, data) {
 
 router.get("/health", (_req, res) => {
   try {
-    getLlmConfig();
-    res.json({ status: "ok", service: "virtual-engineer-chat" });
+    const llm = getLlmConfig();
+    res.json({
+      status: "ok",
+      service: "virtual-engineer-chat",
+      llm: {
+        provider: llm.provider,
+        protocol: llm.protocol,
+        gateway: llm.gateway,
+        model: llm.model,
+      },
+    });
   } catch (err) {
     res.status(503).json({ status: "error", message: err.message });
   }

@@ -21,6 +21,15 @@ export function QueryInspector({ insight, title }: Props) {
           {insight.index ? ` · ${insight.index}` : ""}
         </span>
       </div>
+      {insight.rank_fusion_legs && insight.rank_fusion_legs.length > 0 && (
+        <div className="rank-fusion-legs">
+          {insight.rank_fusion_legs.map((leg) => (
+            <span key={leg.pipeline} className="rank-fusion-leg">
+              {leg.pipeline}: rank {leg.rank ?? "n/a"} (weight {leg.weight})
+            </span>
+          ))}
+        </div>
+      )}
       <pre className="query-inspector">{insight.query_excerpt}</pre>
     </div>
   );

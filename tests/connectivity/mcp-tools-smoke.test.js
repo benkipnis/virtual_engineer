@@ -213,6 +213,43 @@ describe("MCP connectivity", () => {
     assert.equal(parsed.query_insight.pattern, "exact_find");
     assert.equal(parsed.query_insight.collection, "chillers");
   });
+
+  it("searchManuals uses native $rankFusion hybrid search (requires knowledge_search + knowledge_auto_embed_index Active)", async () => {
+    const sessionId = await createMcpSession();
+
+    const res = await mcpRequest(sessionId, {
+      jsonrpc: "2.0",
+      id: 51,
+      method: "tools/call",
+      params: {
+        name: "searchManuals",
+        arguments: { query: "motor temperature PTC sensor", filters: { alarm_codes: ["A1.01"] } },
+      },
+    });
+    const text = res.json?.result?.content?.[0]?.text || "";
+    const parsed = JSON.parse(text);
+    assert.equal(parsed.query_insight.pattern, "hybrid_search");
+    assert.ok(parsed.query_insight.query_excerpt.includes("$rankFusion"));
+    // Not asserting degraded === false here since it depends on Atlas index provisioning state.
+  });
+
+  it("searchCaseNotes uses native $rankFusion hybrid search (requires service_tickets vector + search indexes Active)", async () => {
+    const sessionId = await createMcpSession();
+
+    const res = await mcpRequest(sessionId, {
+      jsonrpc: "2.0",
+      id: 52,
+      method: "tools/call",
+      params: {
+        name: "searchCaseNotes",
+        arguments: { query: "compressor motor temperature fault" },
+      },
+    });
+    const text = res.json?.result?.content?.[0]?.text || "";
+    const parsed = JSON.parse(text);
+    assert.equal(parsed.query_insight.pattern, "hybrid_search");
+    assert.ok(parsed.query_insight.query_excerpt.includes("$rankFusion"));
+  });
 });
 
 describe("Chat API", () => {
@@ -227,5 +264,12 @@ describe("Chat API", () => {
     const res = await fetch(`${BASE}/api/health`);
     const hasKey = res.status === 200 || res.status === 503;
     assert.ok(hasKey);
+    if (res.status === 200) {
+      const body = await res.json();
+      assert.equal(body.status, "ok");
+      assert.ok(body.llm?.protocol);
+      assert.ok(body.llm?.gateway);
+      assert.ok(body.llm?.model);
+    }
   });
 });

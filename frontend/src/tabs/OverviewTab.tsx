@@ -7,7 +7,7 @@ interface Props {
 }
 
 export function OverviewTab({ onNavigate }: Props) {
-  const { setSelectedChillerId, sendMessage } = useChat();
+  const { setSelectedChillerId, sendMessage, clearChat } = useChat();
 
   return (
     <div>
@@ -46,8 +46,8 @@ export function OverviewTab({ onNavigate }: Props) {
           <div style={{ background: "#fff8e1", padding: "1rem", borderRadius: "6px" }}>
             <strong>Layer 2 — Probabilistic</strong>
             <ul style={{ margin: "0.5rem 0 0", paddingLeft: "1.2rem", fontSize: "0.85rem" }}>
-              <li>Vector search (manuals, guides)</li>
-              <li>Hybrid search (case notes)</li>
+              <li>Hybrid search — manuals &amp; guides ($rankFusion)</li>
+              <li>Hybrid search — case notes ($rankFusion)</li>
               <li>Evidence-based recommendations</li>
             </ul>
           </div>
@@ -57,17 +57,23 @@ export function OverviewTab({ onNavigate }: Props) {
       <div className="card" style={{ marginBottom: "1.5rem" }}>
         <h3>Atlas Services</h3>
         <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", marginTop: "0.5rem" }}>
-          {["Atlas Database", "Vector Search (autoEmbed)", "Atlas Search", "Time Series"].map(
-            (s) => (
-              <span
-                key={s}
-                className="pattern-badge pattern-vector_search"
-                style={{ background: "#e8faf0", color: "var(--mongo-green-dark)" }}
-              >
-                {s}
-              </span>
-            )
-          )}
+          {[
+            "Atlas Database",
+            "Voyage.AI Embeddings",
+            "Automated Embedding Generation",
+            "Atlas Text Search",
+            "Atlas Vector Search",
+            "Atlas Hybrid Search ($rankFusion)",
+            "Time Series",
+          ].map((s) => (
+            <span
+              key={s}
+              className="pattern-badge pattern-vector_search"
+              style={{ background: "#e8faf0", color: "var(--mongo-green-dark)" }}
+            >
+              {s}
+            </span>
+          ))}
         </div>
       </div>
 
@@ -80,8 +86,12 @@ export function OverviewTab({ onNavigate }: Props) {
       <ScenarioPicker
         scenarios={SCENARIOS}
         selectedId={null}
-        onSelect={(s) => setSelectedChillerId(s.chillerId)}
+        onSelect={(s) => {
+          clearChat();
+          setSelectedChillerId(s.chillerId);
+        }}
         onPrompt={(prompt, chillerId) => {
+          clearChat();
           setSelectedChillerId(chillerId);
           sendMessage(prompt, chillerId);
           onNavigate("evidence");

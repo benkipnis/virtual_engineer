@@ -125,6 +125,22 @@ textarea {
 .pattern-write { background: #e0f2f1; color: #00695c; }
 .pattern-not_configured { background: #ffebee; color: #b71c1c; }
 
+.rank-fusion-legs {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.5rem;
+}
+
+.rank-fusion-leg {
+  font-size: 0.7rem;
+  font-family: "SF Mono", "Fira Code", monospace;
+  background: #fff8e1;
+  color: #f57f17;
+  border-radius: 4px;
+  padding: 0.15rem 0.5rem;
+}
+
 .query-inspector {
   background: var(--mongo-forest);
   color: #c8e6c9;

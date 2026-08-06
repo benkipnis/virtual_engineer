@@ -24,12 +24,12 @@ See [docs/architecture.md](docs/architecture.md) for details.
 
 - Node.js 18+
 - MongoDB Atlas cluster
-- OpenAI or Anthropic API key (for chat)
+- OpenAI or Anthropic API key (for chat), **or** MongoDB Grove key (`MDB_GROVE_API_KEY`) for internal demos
 
 ## Quick start
 
 ```bash
-cp .env.example .env   # add MONGODB_URI, OPENAI_API_KEY
+cp .env.example .env   # add MONGODB_URI and an LLM key (OPENAI_API_KEY, ANTHROPIC_API_KEY, or MDB_GROVE_API_KEY)
 
 npm install
 npm run seed:drop      # load sample data into virtual_engineer database

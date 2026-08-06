@@ -62,7 +62,21 @@ export async function filterCases({ productFamily, alarmCategory, status, limit 
   return db.collection("service_tickets").aggregate(pipeline).toArray();
 }
 
-export async function searchCaseNotesVector(query, filters = {}, limit = 10) {
+const CASE_HYBRID_WEIGHTS = { vector: 0.5, text: 0.5 };
+
+function buildCaseFilterClauses(filters = {}) {
+  const clauses = [];
+  if (filters.status) clauses.push({ equals: { path: "status", value: filters.status } });
+  if (filters.chiller_id) {
+    clauses.push({ equals: { path: "chiller_id", value: filters.chiller_id } });
+  }
+  if (filters.related_alarm_codes?.length) {
+    clauses.push({ in: { path: "related_alarm_codes", value: filters.related_alarm_codes } });
+  }
+  return clauses;
+}
+
+export async function searchCaseNotesHybrid(query, filters = {}, limit = 10) {
   const db = await getDb();
   const vectorFilter = {};
   if (filters.status) vectorFilter.status = { $eq: filters.status };
@@ -70,67 +84,64 @@ export async function searchCaseNotesVector(query, filters = {}, limit = 10) {
   if (filters.related_alarm_codes?.length) {
     vectorFilter.related_alarm_codes = { $in: filters.related_alarm_codes };
   }
+  const filterClauses = buildCaseFilterClauses(filters);
 
   const pipeline = [
     {
-      $vectorSearch: {
-        index: env.ticketsVectorIndex,
-        path: "searchable_narrative",
-        query: { text: query },
-        numCandidates: 50,
-        limit,
-        ...(Object.keys(vectorFilter).length ? { filter: vectorFilter } : {}),
-      },
-    },
-    {
-      $project: {
-        ticket_id: 1,
-        chiller_id: 1,
-        status: 1,
-        reported_symptom: 1,
-        work_performed: 1,
-        resolution: 1,
-        root_cause: 1,
-        related_alarm_codes: 1,
-        score: { $meta: "vectorSearchScore" },
-        leg: { $literal: "vector" },
-      },
-    },
-  ];
-
-  return db.collection("service_tickets").aggregate(pipeline).toArray();
-}
-
-export async function searchCaseNotesText(query, filters = {}, limit = 10) {
-  const db = await getDb();
-  const filterClauses = [];
-  if (filters.status) filterClauses.push({ equals: { path: "status", value: filters.status } });
-  if (filters.chiller_id) {
-    filterClauses.push({ equals: { path: "chiller_id", value: filters.chiller_id } });
-  }
-  if (filters.related_alarm_codes?.length) {
-    filterClauses.push({ in: { path: "related_alarm_codes", value: filters.related_alarm_codes } });
-  }
-
-  const pipeline = [
-    {
-      $search: {
-        index: env.ticketsSearchIndex,
-        compound: {
-          must: [
-            {
-              text: {
-                query,
-                path: ["reported_symptom", "work_performed", "resolution", "root_cause", "searchable_narrative"],
+      $rankFusion: {
+        input: {
+          pipelines: {
+            vector: [
+              {
+                $vectorSearch: {
+                  index: env.ticketsVectorIndex,
+                  path: "searchable_narrative",
+                  query: { text: query },
+                  numCandidates: 50,
+                  limit,
+                  ...(Object.keys(vectorFilter).length ? { filter: vectorFilter } : {}),
+                },
               },
-            },
-          ],
-          ...(filterClauses.length ? { filter: filterClauses } : {}),
+            ],
+            text: [
+              {
+                $search: {
+                  index: env.ticketsSearchIndex,
+                  compound: {
+                    must: [
+                      {
+                        text: {
+                          query,
+                          path: [
+                            "reported_symptom",
+                            "work_performed",
+                            "resolution",
+                            "root_cause",
+                            "searchable_narrative",
+                          ],
+                        },
+                      },
+                    ],
+                    ...(filterClauses.length ? { filter: filterClauses } : {}),
+                  },
+                },
+              },
+              { $limit: limit },
+            ],
+          },
         },
+        combination: { weights: CASE_HYBRID_WEIGHTS },
+        scoreDetails: true,
       },
     },
     { $limit: limit },
     {
+      $addFields: {
+        rrf_score: { $meta: "score" },
+        score_details: { $meta: "searchScoreDetails" },
+      },
+    },
+    {
       $project: {
         ticket_id: 1,
         chiller_id: 1,
@@ -140,40 +151,13 @@ export async function searchCaseNotesText(query, filters = {}, limit = 10) {
         resolution: 1,
         root_cause: 1,
         related_alarm_codes: 1,
-        score: { $meta: "searchScore" },
-        leg: { $literal: "text" },
+        rrf_score: 1,
+        score_details: 1,
       },
     },
   ];
 
   return db.collection("service_tickets").aggregate(pipeline).toArray();
-}
-
-export async function searchCaseNotesRegex(query, filters = {}, limit = 10) {
-  const db = await getDb();
-  const match = {
-    $or: [
-      { reported_symptom: { $regex: query, $options: "i" } },
-      { work_performed: { $regex: query, $options: "i" } },
-      { resolution: { $regex: query, $options: "i" } },
-      { root_cause: { $regex: query, $options: "i" } },
-      { searchable_narrative: { $regex: query, $options: "i" } },
-    ],
-  };
-  if (filters.status) match.status = filters.status;
-  if (filters.chiller_id) match.chiller_id = filters.chiller_id;
-  if (filters.related_alarm_codes?.length) {
-    match.related_alarm_codes = { $in: filters.related_alarm_codes };
-  }
-
-  const docs = await db
-    .collection("service_tickets")
-    .find(match)
-    .sort({ opened_at: -1 })
-    .limit(limit)
-    .toArray();
-
-  return docs.map((d) => ({ ...d, score: null, leg: "regex" }));
 }
 
 export function rerankSimilarCases(results, context = {}) {
@@ -182,7 +166,7 @@ export function rerankSimilarCases(results, context = {}) {
 
   return [...results]
     .map((item) => {
-      let boost = item.score ?? 0;
+      let boost = item.rrf_score ?? item.score ?? 0;
       const sharedAlarms = (item.related_alarm_codes || []).filter((c) => alarmCodes.has(c)).length;
       boost += sharedAlarms * 0.15;
       if (modelFamily && item.chiller?.model_family === modelFamily) boost += 0.1;

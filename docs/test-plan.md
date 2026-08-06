@@ -13,7 +13,9 @@
 | PHX scenario | getActiveAlarms CH-PHX-005 | Co.A1 active |
 | PHX history | getServiceHistory CH-PHX-005 | WO-2025-03120 |
 | Query insight | getChillerById response | `query_insight.pattern: exact_find` |
-| Chat API | GET `/api/health` | 200 or 503 (if no LLM key) |
+| Hybrid search (knowledge) | searchManuals response | `query_insight.pattern: hybrid_search`, excerpt includes `$rankFusion` |
+| Hybrid search (cases) | searchCaseNotes response | `query_insight.pattern: hybrid_search`, excerpt includes `$rankFusion` |
+| Chat API | GET `/api/health` | 200 or 503 (if no LLM key); when configured, includes `llm.gateway` |
 
 ## Frontend build
 
@@ -43,8 +45,41 @@ Run backend + frontend, then test each scenario via Overview starter prompts:
 
 ## Search index dependency
 
-Semantic search tools return `degraded: true` until Atlas autoEmbed indexes are Active.
+`searchManuals`/`searchTroubleshootingGuides`/`searchTechnicalBulletins` and `searchCaseNotes` use native
+`$rankFusion` hybrid search (vector + lexical), which requires **four** indexes to be Active:
+
+| Collection | Vector index | Lexical (Atlas Search) index |
+|------------|---------------|-------------------------------|
+| `knowledge_documents` | `knowledge_auto_embed_index` | `knowledge_search` |
+| `service_tickets` | `service_tickets_auto_embed_index` | `service_tickets_search` |
+
+If any required index is missing or not Active, the tool returns `degraded: true` with empty results and
+an error message — there is **no regex fallback**. `$rankFusion` also requires MongoDB 8.0+ on the Atlas
+cluster (see `docs/indexes.md`).
 
 ## LLM dependency
 
-Chat API requires `OPENAI_API_KEY` (default) or `ANTHROPIC_API_KEY` with `LLM_PROVIDER=anthropic`.
+Chat API requires one of:
+
+| Mode | Env |
+|------|-----|
+| Direct OpenAI (default) | `OPENAI_API_KEY`, `LLM_PROVIDER=openai` |
+| Direct Anthropic | `ANTHROPIC_API_KEY`, `LLM_PROVIDER=anthropic` |
+| Grove OpenAI | `MDB_GROVE_API_KEY`, `LLM_PROVIDER=grove-openai` |
+| Grove Anthropic | `MDB_GROVE_API_KEY`, `LLM_PROVIDER=grove-anthropic` |
+
+## LLM config unit tests
+
+```bash
+node --test tests/connectivity/llm-config.test.js
+```
+
+## Grove smoke test (optional)
+
+Runs only when `MDB_GROVE_API_KEY` is set:
+
+```bash
+node --test tests/connectivity/grove-llm-smoke.test.js
+```
+
+Validates Grove gateway connectivity and a minimal agent tool-use loop for CH-ATL-003.

@@ -103,44 +103,84 @@ export function insightForPartsHistory(chillerId) {
   };
 }
 
-export function insightForKnowledgeSearch(query, type, filters, usedVector = true) {
-  if (usedVector) {
-    return {
-      pattern: PATTERNS.VECTOR_SEARCH,
-      collection: "knowledge_documents",
-      index: env.knowledgeVectorIndex,
-      query_excerpt: excerpt({
-        $vectorSearch: {
-          index: env.knowledgeVectorIndex,
-          path: "content",
-          query: { text: query },
-          filter: { type, ...filters },
-        },
-      }),
-    };
-  }
+function toRankFusionLegs(scoreDetails) {
+  if (!scoreDetails?.length) return undefined;
+  return scoreDetails.map((d) => ({
+    pipeline: d.inputPipelineName,
+    rank: d.rank ?? null,
+    weight: d.weight ?? 1,
+  }));
+}
+
+export function insightForKnowledgeSearch(query, type, filters, scoreDetails = null) {
   return {
-    pattern: PATTERNS.EXACT_FIND,
+    pattern: PATTERNS.HYBRID_SEARCH,
     collection: "knowledge_documents",
-    query_excerpt: excerpt({ type, content: { $regex: query, $options: "i" }, ...filters }),
+    index: `${env.knowledgeVectorIndex},${env.knowledgeSearchIndex}`,
+    query_excerpt: excerpt({
+      $rankFusion: {
+        input: {
+          pipelines: {
+            vector: [
+              {
+                $vectorSearch: {
+                  index: env.knowledgeVectorIndex,
+                  path: "content",
+                  query: { text: query },
+                  filter: { type, ...filters },
+                },
+              },
+            ],
+            text: [
+              {
+                $search: {
+                  index: env.knowledgeSearchIndex,
+                  compound: { must: [{ text: { query, path: ["title", "content"] } }] },
+                },
+              },
+            ],
+          },
+        },
+        combination: { weights: { vector: 0.5, text: 0.5 } },
+      },
+    }),
+    rank_fusion_legs: toRankFusionLegs(scoreDetails),
   };
 }
 
-export function insightForCaseSearch(query, filters, legs = ["vector", "text"]) {
-  const pattern = legs.length > 1 ? PATTERNS.HYBRID_SEARCH : legs[0] === "vector" ? PATTERNS.VECTOR_SEARCH : PATTERNS.ATLAS_SEARCH;
+export function insightForCaseSearch(query, filters, scoreDetails = null) {
   return {
-    pattern,
+    pattern: PATTERNS.HYBRID_SEARCH,
     collection: "service_tickets",
-    index: legs.includes("vector") ? env.ticketsVectorIndex : env.ticketsSearchIndex,
+    index: `${env.ticketsVectorIndex},${env.ticketsSearchIndex}`,
     query_excerpt: excerpt({
-      vector: legs.includes("vector")
-        ? { $vectorSearch: { index: env.ticketsVectorIndex, path: "searchable_narrative", query: { text: query } } }
-        : null,
-      text: legs.includes("text")
-        ? { $search: { index: env.ticketsSearchIndex, text: { query, path: "searchable_narrative" } } }
-        : null,
-      filters,
+      $rankFusion: {
+        input: {
+          pipelines: {
+            vector: [
+              {
+                $vectorSearch: {
+                  index: env.ticketsVectorIndex,
+                  path: "searchable_narrative",
+                  query: { text: query },
+                  filter: filters,
+                },
+              },
+            ],
+            text: [
+              {
+                $search: {
+                  index: env.ticketsSearchIndex,
+                  compound: { must: [{ text: { query, path: "searchable_narrative" } }] },
+                },
+              },
+            ],
+          },
+        },
+        combination: { weights: { vector: 0.5, text: 0.5 } },
+      },
     }),
+    rank_fusion_legs: toRankFusionLegs(scoreDetails),
   };
 }
 

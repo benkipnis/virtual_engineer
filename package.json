@@ -9,6 +9,8 @@
     "seed": "node scripts/data/seed/load-sample-data.js",
     "seed:drop": "node scripts/data/seed/load-sample-data.js --drop",
     "generate:telemetry": "node scripts/data/generate-telemetry.js",
+    "indexes:check": "node scripts/data/manage-search-indexes.js",
+    "indexes:create": "node scripts/data/manage-search-indexes.js --create --wait",
     "mcp:dev": "node backend/src/index.js",
     "dev:backend": "node backend/src/index.js",
     "dev:frontend": "npm run dev --prefix frontend",

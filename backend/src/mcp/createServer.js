@@ -15,14 +15,11 @@ import {
   getPartsHistory,
   getServiceHistory,
   rerankSimilarCases,
-  searchCaseNotesRegex,
-  searchCaseNotesText,
-  searchCaseNotesVector,
+  searchCaseNotesHybrid,
 } from "../repositories/serviceTickets.js";
 import {
   rerankKnowledgeResults,
   searchKnowledge,
-  searchKnowledgeRegex,
 } from "../repositories/knowledge.js";
 import {
   captureEngineerReaction,
@@ -67,89 +64,49 @@ const contextSchema = z
   .optional();
 
 async function tryKnowledgeSearch(query, type, filters) {
-  let vectorError;
   try {
     const results = await searchKnowledge({ query, type, filters });
+    const scoreDetails = results[0]?.score_details?.details || null;
+    const insight = insightForKnowledgeSearch(query, type, filters, scoreDetails);
     if (results.length > 0) {
       return toolOk(
         { results, type },
         results.map((r) => ({ collection: "knowledge_documents", id: r.doc_id })),
-        { query_insight: insightForKnowledgeSearch(query, type, filters, true) }
+        { query_insight: insight }
       );
     }
+    return toolDegraded({ results: [], type }, "No knowledge matches found", [], {
+      query_insight: insight,
+    });
   } catch (err) {
-    vectorError = err;
-  }
-
-  const fallback = await searchKnowledgeRegex({ query, type, filters });
-  if (fallback.length) {
-    const reason = vectorError
-      ? `Vector search unavailable (${vectorError.message}); using regex fallback`
-      : "Vector search returned no results; using regex fallback";
     return toolDegraded(
-      { results: fallback, type },
-      reason,
-      fallback.map((r) => ({ collection: "knowledge_documents", id: r.doc_id })),
-      { query_insight: insightForKnowledgeSearch(query, type, filters, false) }
+      { results: [], type },
+      `Hybrid search unavailable: ${err.message}`,
+      [],
+      { query_insight: insightForKnowledgeSearch(query, type, filters, null) }
     );
   }
-
-  const message = vectorError ? `Knowledge search degraded: ${vectorError.message}` : "No knowledge matches found";
-  return toolDegraded(
-    { results: [], type },
-    message,
-    [],
-    { query_insight: insightForKnowledgeSearch(query, type, filters, false) }
-  );
 }
 
 async function tryCaseSearch(query, filters) {
-  const merged = [];
-  const messages = [];
-  const legs = [];
-
   try {
-    const vector = await searchCaseNotesVector(query, filters);
-    merged.push(...vector);
-    if (vector.length) legs.push("vector");
+    const results = await searchCaseNotesHybrid(query, filters);
+    const scoreDetails = results[0]?.score_details?.details || null;
+    const insight = insightForCaseSearch(query, filters, scoreDetails);
+    if (results.length > 0) {
+      return toolOk({ results }, [], { query_insight: insight });
+    }
+    return toolDegraded({ results: [] }, "No similar cases found", [], {
+      query_insight: insight,
+    });
   } catch (err) {
-    messages.push(`vector: ${err.message}`);
-  }
-
-  try {
-    const text = await searchCaseNotesText(query, filters);
-    merged.push(...text);
-    if (text.length) legs.push("text");
-  } catch (err) {
-    messages.push(`text: ${err.message}`);
-  }
-
-  const insight = insightForCaseSearch(query, filters, legs.length ? legs : ["regex"]);
-
-  if (!merged.length) {
-    const regex = await searchCaseNotesRegex(query, filters);
     return toolDegraded(
-      { results: regex },
-      messages.length ? `Search indexes unavailable (${messages.join("; ")}); regex fallback` : "Regex fallback",
+      { results: [] },
+      `Hybrid search unavailable: ${err.message}`,
       [],
-      { query_insight: insightForCaseSearch(query, filters, ["regex"]) }
+      { query_insight: insightForCaseSearch(query, filters, null) }
     );
   }
-
-  const byId = new Map();
-  for (const item of merged) {
-    const existing = byId.get(item.ticket_id);
-    if (!existing || (item.score ?? 0) > (existing.score ?? 0)) {
-      byId.set(item.ticket_id, item);
-    }
-  }
-
-  const degraded = messages.length > 0;
-  const results = [...byId.values()];
-  if (degraded) {
-    return toolDegraded({ results }, messages.join("; "), [], { query_insight: insight });
-  }
-  return toolOk({ results }, [], { query_insight: insight });
 }
 
 export function createMcpServer() {

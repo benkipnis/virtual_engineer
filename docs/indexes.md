@@ -69,6 +69,27 @@ Requires `searchable_narrative` field (populated by seed script).
 }
 ```
 
+### `knowledge_search` on `knowledge_documents` (lexical, for hybrid search)
+
+```json
+{
+  "name": "knowledge_search",
+  "definition": {
+    "mappings": {
+      "dynamic": false,
+      "fields": {
+        "title": { "type": "string", "analyzer": "lucene.english" },
+        "content": { "type": "string", "analyzer": "lucene.english" },
+        "type": { "type": "token" },
+        "model_families": { "type": "token" },
+        "subsystem": { "type": "token" },
+        "alarm_codes": { "type": "token" }
+      }
+    }
+  }
+}
+```
+
 ## Atlas Search — `service_tickets_search`
 
 ```json
@@ -103,8 +124,38 @@ See `scripts/data/seed/load-sample-data.js` → `createIndexes()`.
 1. Run `npm run seed:drop` to load all collections including `knowledge_documents`
 2. Atlas → Search & Vector Search → Create Search Index on `knowledge_documents`
 3. Choose JSON editor, paste `knowledge_auto_embed_index` definition, wait for initial sync
-4. Create Search Index on `service_tickets` for `service_tickets_search`
-5. Create Vector Search Index on `service_tickets` for `service_tickets_auto_embed_index`
-6. Verify index status is **Active** before demoing semantic search tools
+4. Create a second Search Index on `knowledge_documents` for `knowledge_search` (lexical, JSON editor, definition above)
+5. Create Search Index on `service_tickets` for `service_tickets_search`
+6. Create Vector Search Index on `service_tickets` for `service_tickets_auto_embed_index`
+7. Verify all four index statuses are **Active** before demoing search tools
 
-MCP tools fall back to regex search when vector/search indexes are unavailable (`degraded: true` in response).
+## Provisioning via CLI (alternative to Atlas UI)
+
+`scripts/data/manage-search-indexes.js` checks whether the four indexes above exist and are
+`READY`, and can create any that are missing using the Node driver's `createSearchIndex()`
+(same index names/definitions as this doc, sourced from `KNOWLEDGE_VECTOR_INDEX`,
+`KNOWLEDGE_SEARCH_INDEX`, `TICKETS_VECTOR_INDEX`, `TICKETS_SEARCH_INDEX` if overridden in `.env`).
+
+```bash
+npm run indexes:check    # report status only (READY / BUILDING / MISSING)
+npm run indexes:create   # create any missing indexes, then poll until READY
+```
+
+Requires an Atlas cluster tier that supports driver-based Search Index management (M10+, or
+Search Nodes) — not supported on M0/M2/M5 shared tiers or local `mongod`, where you must use the
+Atlas UI instead. This does not update definitions on indexes that already exist; delete and
+recreate via the Atlas UI if a definition needs to change.
+
+## Hybrid search via `$rankFusion`
+
+`searchManuals`/`searchTroubleshootingGuides`/`searchTechnicalBulletins` and `searchCaseNotes` use the native
+[`$rankFusion`](https://www.mongodb.com/docs/manual/reference/operator/aggregation/rankFusion/) aggregation
+stage to combine vector and lexical results via Reciprocal Rank Fusion (RRF) — no application-level score
+merging and no regex fallback.
+
+**Requirements:** MongoDB 8.0+ on the Atlas cluster. 8.0.x requires an Atlas support case to enable
+`$rankFusion`; it is native on 8.1+. Verify cluster version in Atlas UI before provisioning indexes.
+
+If a `$rankFusion` query fails (index missing/not Active), the tool returns `degraded: true` with empty
+results and an error message — there is no regex fallback. All relevant indexes (vector + lexical, for
+both `knowledge_documents` and `service_tickets`) must be **Active** for non-degraded responses.
