@@ -31,6 +31,7 @@ export interface ToolEvent {
   latency_ms?: number;
   query_insight?: QueryInsight | null;
   timestamp: number;
+  round?: number;
 }
 
 export interface EvidenceZone {

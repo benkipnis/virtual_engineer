@@ -1,7 +1,19 @@
 import { useState } from "react";
+import ReactMarkdown from "react-markdown";
 import { PatternBadge } from "../components/PatternBadge";
 import { QueryInspector } from "../components/QueryInspector";
 import { useChat } from "../context/ChatContext";
+import type { ToolEvent } from "../types";
+
+function groupByRound(events: ToolEvent[]): Map<number, ToolEvent[]> {
+  const rounds = new Map<number, ToolEvent[]>();
+  for (const ev of events) {
+    const r = ev.round ?? 0;
+    if (!rounds.has(r)) rounds.set(r, []);
+    rounds.get(r)!.push(ev);
+  }
+  return rounds;
+}
 
 export function FieldChatTab() {
   const {
@@ -24,6 +36,9 @@ export function FieldChatTab() {
     sendMessage(input.trim(), selectedChillerId);
     setInput("");
   };
+
+  const rounds = groupByRound(toolEvents);
+  const sortedRounds = [...rounds.entries()].sort(([a], [b]) => a - b);
 
   return (
     <>
@@ -65,7 +80,11 @@ export function FieldChatTab() {
           )}
           {messages.map((m) => (
             <div key={m.id} className={m.role === "user" ? "message-user" : "message-assistant"}>
-              {m.content}
+              {m.role === "assistant" ? (
+                <ReactMarkdown>{m.content}</ReactMarkdown>
+              ) : (
+                m.content
+              )}
             </div>
           ))}
         </div>
@@ -116,32 +135,41 @@ export function FieldChatTab() {
               Live tool calls, query patterns, and Atlas services invoked during this session.
             </p>
             {toolEvents.length === 0 && <p>No tool calls yet.</p>}
-            {toolEvents.map((e) => (
-              <div key={e.id} className="xray-timeline-item">
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <strong>{e.tool}</strong>
-                  {e.latency_ms != null && (
-                    <span style={{ fontSize: "0.8rem", color: "var(--mongo-green)" }}>
-                      {e.latency_ms}ms
-                    </span>
-                  )}
+            {sortedRounds.map(([round, events], roundIdx) => (
+              <div key={round}>
+                <div
+                  style={{
+                    fontSize: "0.72rem",
+                    fontWeight: 700,
+                    textTransform: "uppercase",
+                    letterSpacing: "0.08em",
+                    color: "var(--mongo-green)",
+                    marginBottom: "0.75rem",
+                    marginTop: roundIdx > 0 ? "1.5rem" : 0,
+                  }}
+                >
+                  Round {round}
                 </div>
-                {e.query_insight && (
-                  <div style={{ marginTop: "0.5rem" }}>
-                    <PatternBadge pattern={e.query_insight.pattern} />
-                    <span style={{ marginLeft: "0.5rem", fontSize: "0.8rem", color: "#aaa" }}>
-                      {e.query_insight.collection}
-                    </span>
+                {events.map((e) => (
+                  <div key={e.id} className="xray-timeline-item">
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <strong>{e.tool}</strong>
+                      {e.latency_ms != null && (
+                        <span style={{ fontSize: "0.8rem", color: "var(--mongo-green)" }}>
+                          {e.latency_ms}ms
+                        </span>
+                      )}
+                    </div>
+                    {(e.result as { degraded?: boolean } | undefined)?.degraded && (
+                      <div style={{ color: "#ffb74d", fontSize: "0.8rem", marginTop: "0.35rem" }}>
+                        ⚠ Degraded: {(e.result as { message?: string }).message}
+                      </div>
+                    )}
+                    <div style={{ marginTop: "0.5rem" }}>
+                      <QueryInspector insight={e.query_insight} result={e.result} />
+                    </div>
                   </div>
-                )}
-                {e.result && (e.result as { degraded?: boolean }).degraded && (
-                  <div style={{ color: "#ffb74d", fontSize: "0.8rem", marginTop: "0.35rem" }}>
-                    ⚠ Degraded: {(e.result as { message?: string }).message}
-                  </div>
-                )}
-                <div style={{ marginTop: "0.5rem" }}>
-                  <QueryInspector insight={e.query_insight} />
-                </div>
+                ))}
               </div>
             ))}
           </div>

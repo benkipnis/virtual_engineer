@@ -216,7 +216,71 @@ textarea {
   border-radius: 6px;
   margin-bottom: 0.75rem;
   line-height: 1.55;
-  white-space: pre-wrap;
+}
+
+.message-assistant p {
+  margin: 0 0 0.6rem;
+}
+
+.message-assistant p:last-child {
+  margin-bottom: 0;
+}
+
+.message-assistant ul,
+.message-assistant ol {
+  margin: 0.25rem 0 0.6rem;
+  padding-left: 1.4rem;
+}
+
+.message-assistant li {
+  margin-bottom: 0.2rem;
+}
+
+.message-assistant strong {
+  font-weight: 600;
+  color: var(--mongo-slate);
+}
+
+.message-assistant code {
+  background: var(--mongo-light);
+  border: 1px solid var(--mongo-border);
+  border-radius: 3px;
+  padding: 0.1rem 0.35rem;
+  font-family: "SF Mono", "Fira Code", monospace;
+  font-size: 0.85em;
+}
+
+.message-assistant pre {
+  background: var(--mongo-forest);
+  color: #c8e6c9;
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  overflow-x: auto;
+  margin: 0.5rem 0;
+  font-size: 0.8rem;
+}
+
+.message-assistant pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: inherit;
+  color: inherit;
+}
+
+.message-assistant h1,
+.message-assistant h2,
+.message-assistant h3 {
+  margin: 0.75rem 0 0.35rem;
+  font-size: 0.95rem;
+  color: var(--mongo-green-dark);
+}
+
+.message-assistant blockquote {
+  border-left: 3px solid var(--mongo-border);
+  margin: 0.5rem 0;
+  padding: 0.25rem 0.75rem;
+  color: var(--mongo-gray);
 }
 
 .zone-active {
@@ -288,6 +352,12 @@ textarea {
   grid-column: span 3;
 }
 
+/* Stable card height prevents layout reflows as data populates */
+.evidence-zone-card {
+  min-height: 120px;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
 @media (max-width: 900px) {
   .evidence-grid {
     grid-template-columns: 1fr;
@@ -327,4 +397,175 @@ textarea {
 
 .feedback-btn:hover {
   background: var(--mongo-light);
+}
+
+/* ── Agent Flow Timeline ── */
+.agent-flow-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.agent-flow-empty {
+  color: var(--mongo-gray);
+  font-size: 0.85rem;
+  font-style: italic;
+  padding: 0.5rem 0;
+}
+
+.agent-flow-round-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--mongo-gray);
+  margin-bottom: 0.35rem;
+}
+
+.agent-flow-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.agent-flow-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+  background: var(--mongo-white);
+  border: 1px solid var(--mongo-border);
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+  text-align: left;
+  min-width: 130px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.agent-flow-card:hover {
+  border-color: var(--mongo-green-dark);
+}
+
+.agent-flow-card.selected {
+  border-color: var(--mongo-green-dark);
+  background: #e8faf0;
+  box-shadow: 0 0 0 2px rgba(0, 104, 74, 0.15);
+}
+
+.agent-flow-card.in-flight {
+  border-style: dashed;
+  opacity: 0.8;
+}
+
+.agent-flow-card.degraded {
+  border-color: #ffb74d;
+  background: #fff8e1;
+}
+
+.agent-flow-tool-name {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--mongo-slate);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 160px;
+}
+
+.agent-flow-latency {
+  font-size: 0.7rem;
+  color: var(--mongo-gray);
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.agent-flow-degraded-badge {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #e65100;
+  background: #fff3e0;
+  border-radius: 3px;
+  padding: 0.1rem 0.35rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.agent-flow-spinner {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border: 2px solid var(--mongo-border);
+  border-top-color: var(--mongo-green-dark);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+.agent-flow-arrow {
+  font-size: 0.72rem;
+  color: var(--mongo-gray);
+  padding: 0.3rem 0;
+  text-align: center;
+  font-style: italic;
+}
+
+/* ── Query Inspector two-column ── */
+.query-inspector-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.5rem;
+}
+
+.query-inspector-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--mongo-slate);
+}
+
+.query-inspector-meta {
+  font-size: 0.8rem;
+  color: var(--mongo-gray);
+}
+
+.query-inspector-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+@media (max-width: 1100px) {
+  .query-inspector-columns {
+    grid-template-columns: 1fr;
+  }
+}
+
+.query-inspector-col-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--mongo-gray);
+  margin-bottom: 0.35rem;
+}
+
+.query-result-inspector {
+  background: var(--mongo-light);
+  border: 1px solid var(--mongo-border);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  font-family: "SF Mono", "Fira Code", monospace;
+  font-size: 0.75rem;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 240px;
+  overflow-y: auto;
+  color: var(--mongo-slate);
+  margin: 0;
 }

@@ -282,6 +282,7 @@ export async function runAgent({ mcpClient, llmConfig, userMessage, chillerId, o
           tool: tc.name,
           args: tc.arguments,
           pattern: null,
+          round: step,
         });
 
         const { result, latencyMs } = await mcpClient.callTool(tc.name, tc.arguments);
@@ -296,6 +297,7 @@ export async function runAgent({ mcpClient, llmConfig, userMessage, chillerId, o
           result,
           latency_ms: latencyMs,
           query_insight: result.query_insight || null,
+          round: step,
         });
 
         const evidence = buildEvidenceUpdate(tc.name, result);
@@ -361,7 +363,7 @@ export async function runAgent({ mcpClient, llmConfig, userMessage, chillerId, o
 
       const toolResults = [];
       for (const tc of toolCalls) {
-        emit("tool_start", { tool: tc.name, args: tc.arguments, pattern: null });
+        emit("tool_start", { tool: tc.name, args: tc.arguments, pattern: null, round: step });
 
         const { result, latencyMs } = await mcpClient.callTool(tc.name, tc.arguments);
 
@@ -375,6 +377,7 @@ export async function runAgent({ mcpClient, llmConfig, userMessage, chillerId, o
           result,
           latency_ms: latencyMs,
           query_insight: result.query_insight || null,
+          round: step,
         });
 
         const evidence = buildEvidenceUpdate(tc.name, result);

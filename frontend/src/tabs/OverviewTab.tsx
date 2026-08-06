@@ -1,5 +1,6 @@
 import { SCENARIOS } from "../types";
 import { ScenarioPicker } from "../components/ScenarioPicker";
+import { ArchitectureDiagram } from "../components/ArchitectureDiagram";
 import { useChat } from "../context/ChatContext";
 
 interface Props {
@@ -23,19 +24,20 @@ export function OverviewTab({ onNavigate }: Props) {
       </div>
 
       <div className="card" style={{ marginBottom: "1.5rem" }}>
-        <h3>Architecture — Two-Layer Retrieval</h3>
+        <h3>Enterprise Architecture</h3>
+        <ArchitectureDiagram />
         <div
           style={{
             display: "grid",
             gridTemplateColumns: "1fr auto 1fr",
             gap: "1rem",
             alignItems: "center",
-            marginTop: "0.75rem",
+            marginTop: "1rem",
           }}
         >
-          <div style={{ background: "#e8faf0", padding: "1rem", borderRadius: "6px" }}>
-            <strong>Layer 1 — Deterministic</strong>
-            <ul style={{ margin: "0.5rem 0 0", paddingLeft: "1.2rem", fontSize: "0.85rem" }}>
+          <div style={{ background: "#e8faf0", padding: "0.75rem 1rem", borderRadius: "6px" }}>
+            <strong style={{ fontSize: "0.85rem" }}>Layer 1 — Deterministic</strong>
+            <ul style={{ margin: "0.4rem 0 0", paddingLeft: "1.2rem", fontSize: "0.82rem" }}>
               <li>Asset resolution (exact find)</li>
               <li>Active alarms ($lookup joins)</li>
               <li>Telemetry windows (time series)</li>
@@ -43,9 +45,9 @@ export function OverviewTab({ onNavigate }: Props) {
             </ul>
           </div>
           <span style={{ fontSize: "1.5rem", color: "var(--mongo-green-dark)" }}>→</span>
-          <div style={{ background: "#fff8e1", padding: "1rem", borderRadius: "6px" }}>
-            <strong>Layer 2 — Probabilistic</strong>
-            <ul style={{ margin: "0.5rem 0 0", paddingLeft: "1.2rem", fontSize: "0.85rem" }}>
+          <div style={{ background: "#fff8e1", padding: "0.75rem 1rem", borderRadius: "6px" }}>
+            <strong style={{ fontSize: "0.85rem" }}>Layer 2 — Probabilistic</strong>
+            <ul style={{ margin: "0.4rem 0 0", paddingLeft: "1.2rem", fontSize: "0.82rem" }}>
               <li>Hybrid search — manuals &amp; guides ($rankFusion)</li>
               <li>Hybrid search — case notes ($rankFusion)</li>
               <li>Evidence-based recommendations</li>

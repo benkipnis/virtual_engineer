@@ -144,6 +144,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
             tool: payload.tool as string,
             args: (payload.args as Record<string, unknown>) || {},
             timestamp: Date.now(),
+            round: payload.round as number | undefined,
           };
           setToolEvents((prev) => [...prev, te]);
         }
@@ -157,6 +158,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
             latency_ms: payload.latency_ms as number,
             query_insight: payload.query_insight as ToolEvent["query_insight"],
             timestamp: Date.now(),
+            round: payload.round as number | undefined,
           };
           setToolEvents((prev) => {
             const idx = prev.findIndex(
