@@ -1,0 +1,5 @@
+# Exclude development artifacts from GitHub's auto-generated source archives
+docs/                                                   export-ignore
+"Virtual Engineer High-Level Requirements and Design Logic.md" export-ignore
+AGENTS.md                                               export-ignore
+.cursor/                                                export-ignore
