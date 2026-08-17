@@ -48,7 +48,7 @@ scripts/data/
 
 `telemetry` is a **MongoDB time series** collection (`timeField: timestamp`, `metaField: chiller_id`, `granularity: minutes`).
 
-Sample data covers **7 days of hourly readings** (168 points per chiller, 840 total) from `2026-07-10T18:00:00Z` through `2026-07-17T17:00:00Z`.
+Sample data covers **7 days of hourly readings** (168 points per chiller, 840 total). The window **ends at the current hour** by default — run the generator at any time and you get a fresh window anchored to now.
 
 Regenerate telemetry (reproducible, seed `42`):
 
@@ -56,14 +56,31 @@ Regenerate telemetry (reproducible, seed `42`):
 node scripts/data/generate-telemetry.js
 ```
 
-Options: `--days 7`, `--interval-hours 1`, `--seed 42`, `--output <path>`
+Options: `--days 7`, `--interval-hours 1`, `--seed 42`, `--output <path>`, `--end-time <ISO8601>`
 
-Per-chiller behavior in the generated data:
+Per-chiller behavior (positioned relative to window end, not to absolute dates):
 
-- **CH-ATL-003** — normal operation, then rising motor temps in the 30h before `A1.01` trip at 14:22 UTC Jul 17
-- **CH-DAL-002** — rising condenser pressure before `207` trip Jul 16 22:08
-- **CH-PHX-005** — running until `Co.A1` fault Jul 17 12:05, then offline readings
+- **CH-ATL-003** — normal operation, then rising motor temps in the 30 h before `A1.01` trip (~2 h 38 m before window end)
+- **CH-DAL-002** — rising condenser pressure before `207` trip (~18 h 52 m before window end)
+- **CH-PHX-005** — running until `Co.A1` fault (~4 h 55 m before window end), then offline readings
 - **CH-ATL-001**, **CH-CHI-004** — stable operation with diurnal load variation
+
+## Keeping data fresh
+
+The agent queries alarm history and telemetry using `Date.now()`-relative windows. Running `npm run seed:drop` resets everything to a fresh baseline anchored to the current time.
+
+For **continuous automated freshness** without any manual steps, deploy the Atlas Scheduled Trigger:
+
+```
+scripts/data/atlas-trigger/refresh-demo-data.js
+```
+
+The trigger fires daily at 02:00 UTC and:
+- Rolls `raised_at` on active alarms forward by one day
+- Rolls `opened_at` on open / in-progress tickets forward by one day
+- Drops and regenerates the telemetry collection with a 7-day window ending at the current hour
+
+See **`docs/data-freshness.md`** for full setup instructions.
 
 ## Load into MongoDB Atlas
 

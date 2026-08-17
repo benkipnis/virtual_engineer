@@ -1,64 +1,169 @@
-#!/usr/bin/env node
 /**
- * Generate 7-day hourly telemetry for all demo chillers.
+ * Atlas App Services — Scheduled Trigger Function
+ * Name:     refreshDemoData
+ * Schedule: every day at 02:00 UTC  (CRON: 0 2 * * *)
  *
- * By default, the window ends at the current hour so telemetry is always fresh.
- * Use --end-time to pin to a specific UTC timestamp (ISO 8601).
+ * Keeps the Virtual Engineer demo data temporally current by:
+ *   1. Rolling active alarm raised_at dates forward by the number of days
+ *      elapsed since the last successful refresh.
+ *   2. Rolling open / in-progress service ticket opened_at dates forward
+ *      by the same amount.
+ *   3. Dropping and regenerating the telemetry time-series collection so
+ *      the 7-day window always ends at the current hour.
  *
- * Usage:
- *   node scripts/data/generate-telemetry.js
- *   node scripts/data/generate-telemetry.js --days 7 --interval-hours 1 --seed 42
- *   node scripts/data/generate-telemetry.js --output scripts/data/samples/telemetry.json
- *   node scripts/data/generate-telemetry.js --end-time 2026-07-17T17:00:00Z
+ * Only records that are part of the live demo narrative are mutated.
+ * Closed / cleared historical records remain untouched so the fact chain
+ * (prior work orders, resolved alarms) stays coherent.
+ *
+ * Configuration — update these constants before deploying:
+ *   SERVICE_NAME  Name of the Atlas linked data source in App Services
+ *                 (default "mongodb-atlas")
+ *   DB_NAME       Target database (default "virtual_engineer")
  */
 
-import { readFileSync, writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+// ---------------------------------------------------------------------------
+// Configuration
+// ---------------------------------------------------------------------------
+const SERVICE_NAME = "mongodb-atlas";
+const DB_NAME = "virtual_engineer";
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const CHILLERS_PATH = join(__dirname, "samples", "chillers.json");
-const DEFAULT_OUTPUT = join(__dirname, "samples", "telemetry.json");
-
-/**
- * Alarm trip times expressed as milliseconds before the window end.
- * This keeps the narrative fixed relative to "now" regardless of when the
- * data was generated.
- *
- * CH-ATL-003  A1.01   trips ~2 h 38 m before end  (hero scenario)
- * CH-DAL-002  207     trips ~18 h 52 m before end
- * CH-PHX-005  Co.A1   trips ~4 h 55 m before end
- */
+// Alarm trip times expressed as milliseconds BEFORE the telemetry window end.
+// Must match the values in scripts/data/generate-telemetry.js ALARM_OFFSETS_MS.
 const ALARM_OFFSETS_MS = {
   "CH-ATL-003": { code: "A1.01",  msBeforeEnd:  9_462_000 },
   "CH-DAL-002": { code: "207",    msBeforeEnd: 67_920_000 },
   "CH-PHX-005": { code: "Co.A1", msBeforeEnd: 17_700_000 },
 };
 
-/** Truncate a millisecond timestamp to the start of the current UTC hour. */
+// Telemetry generation parameters — keep in sync with generate-telemetry.js defaults.
+const TELEMETRY_DAYS = 7;
+const TELEMETRY_INTERVAL_HOURS = 1;
+const TELEMETRY_SEED = 42;
+
+// ---------------------------------------------------------------------------
+// Entry point (Atlas App Services scheduled trigger)
+// ---------------------------------------------------------------------------
+exports = async function () {
+  const client = context.services.get(SERVICE_NAME);
+  const db = client.db(DB_NAME);
+
+  const now = new Date();
+  const log = [];
+
+  // ── 1. Determine how many days to advance ─────────────────────────────────
+  const settingsColl = db.collection("demo_settings");
+  const state = await settingsColl.findOne({ _id: "refresh_state" });
+  const lastRefreshed = state ? state.last_refreshed_at : null;
+
+  // Cap drift at 7 days so a long outage doesn't over-advance the narrative.
+  const daysDrift = lastRefreshed
+    ? Math.min(7, Math.max(1, Math.round((now - lastRefreshed) / 86_400_000)))
+    : 1;
+
+  log.push(`days_drift: ${daysDrift}`);
+
+  // ── 2. Roll active alarm raised_at forward ────────────────────────────────
+  const alarmResult = await db.collection("alarm_events").updateMany(
+    { status: "active" },
+    [
+      {
+        $set: {
+          raised_at: {
+            $dateAdd: { startDate: "$raised_at", unit: "day", amount: daysDrift },
+          },
+        },
+      },
+    ]
+  );
+  log.push(`alarm_events updated: ${alarmResult.modifiedCount}`);
+
+  // ── 3. Roll open / in-progress ticket opened_at forward ───────────────────
+  const ticketResult = await db.collection("service_tickets").updateMany(
+    { status: { $in: ["open", "in_progress"] } },
+    [
+      {
+        $set: {
+          opened_at: {
+            $dateAdd: { startDate: "$opened_at", unit: "day", amount: daysDrift },
+          },
+        },
+      },
+    ]
+  );
+  log.push(`service_tickets updated: ${ticketResult.modifiedCount}`);
+
+  // ── 4. Regenerate telemetry ───────────────────────────────────────────────
+  // Time-series collections do not support in-place timestamp updates, so we
+  // drop and recreate the collection with a fresh 7-day window ending now.
+
+  const endTime = truncateToHour(now.getTime());
+  const chillers = await db.collection("chillers").find({}).toArray();
+  const telemetryDocs = buildTelemetry(chillers, endTime);
+
+  // Drop existing time-series collection (ignore error if it doesn't exist).
+  try {
+    await db.runCommand({ drop: "telemetry" });
+  } catch (_) {
+    // Collection may not exist on first run.
+  }
+
+  // Recreate as a time-series collection.
+  await db.runCommand({
+    create: "telemetry",
+    timeseries: {
+      timeField: "timestamp",
+      metaField: "chiller_id",
+      granularity: "minutes",
+    },
+  });
+
+  // Insert in batches of 500 to stay well within memory limits.
+  const BATCH = 500;
+  let inserted = 0;
+  for (let i = 0; i < telemetryDocs.length; i += BATCH) {
+    const result = await db
+      .collection("telemetry")
+      .insertMany(telemetryDocs.slice(i, i + BATCH));
+    inserted += result.insertedCount;
+  }
+  log.push(`telemetry_points inserted: ${inserted}`);
+
+  // ── 5. Persist refresh state ──────────────────────────────────────────────
+  await settingsColl.updateOne(
+    { _id: "refresh_state" },
+    { $set: { last_refreshed_at: now, days_drift_applied: daysDrift } },
+    { upsert: true }
+  );
+
+  const summary = {
+    refreshed_at: now.toISOString(),
+    days_drift: daysDrift,
+    alarms_rolled: alarmResult.modifiedCount,
+    tickets_rolled: ticketResult.modifiedCount,
+    telemetry_points: inserted,
+    telemetry_window: {
+      start: new Date(endTime - (TELEMETRY_DAYS * 24 - 1) * 3_600_000).toISOString(),
+      end: new Date(endTime).toISOString(),
+    },
+  };
+
+  console.log("refreshDemoData:", JSON.stringify(summary));
+  return summary;
+};
+
+// ---------------------------------------------------------------------------
+// Telemetry generation — pure math, no I/O
+// Mirrors the logic in scripts/data/generate-telemetry.js exactly.
+// ---------------------------------------------------------------------------
+
 function truncateToHour(ms) {
   return ms - (ms % 3_600_000);
 }
 
-function parseArgs() {
-  const args = process.argv.slice(2);
-  const opts = {
-    days: 7,
-    intervalHours: 1,
-    seed: 42,
-    output: DEFAULT_OUTPUT,
-    endTime: truncateToHour(Date.now()),
-  };
-  for (let i = 0; i < args.length; i++) {
-    if (args[i] === "--days") opts.days = Number(args[++i]);
-    else if (args[i] === "--interval-hours") opts.intervalHours = Number(args[++i]);
-    else if (args[i] === "--seed") opts.seed = Number(args[++i]);
-    else if (args[i] === "--output") opts.output = args[++i];
-    else if (args[i] === "--end-time") opts.endTime = Date.parse(args[++i]);
-  }
-  return opts;
-}
-
+/**
+ * Mulberry32 seeded PRNG — deterministic, reproducible sequences.
+ * Same seed → same telemetry shape every time, just shifted in time.
+ */
 function mulberry32(seed) {
   let s = seed >>> 0;
   return () => {
@@ -75,10 +180,6 @@ function round1(n) {
 
 function diurnal(hourUtc, amplitude) {
   return Math.sin(((hourUtc - 14) / 24) * Math.PI * 2) * amplitude;
-}
-
-function loadChillers() {
-  return JSON.parse(readFileSync(CHILLERS_PATH, "utf8"));
 }
 
 function baseProfile(chiller) {
@@ -114,7 +215,7 @@ function baseProfile(chiller) {
 
 function normalReadings(chiller, ts, rand, profile, startTime) {
   const hour = new Date(ts).getUTCHours();
-  const dayOffset = (ts - startTime) / 3600000;
+  const dayOffset = (ts - startTime) / 3_600_000;
 
   const load =
     profile.loadMid +
@@ -159,7 +260,7 @@ function normalReadings(chiller, ts, rand, profile, startTime) {
 }
 
 function heroDegradingReadings(chiller, ts, rand, profile, alarmAt, startTime) {
-  const hoursToAlarm = (alarmAt - ts) / 3600000;
+  const hoursToAlarm = (alarmAt - ts) / 3_600_000;
 
   if (hoursToAlarm <= 0) {
     return {
@@ -177,7 +278,7 @@ function heroDegradingReadings(chiller, ts, rand, profile, alarmAt, startTime) {
       percent_capacity: 0,
       unit_run_status: hoursToAlarm > -2 ? 2 : 0,
       compressor_starts: profile.startsBase + 3,
-      run_hours: round1(profile.runHoursBase + (ts - startTime) / 3600000),
+      run_hours: round1(profile.runHoursBase + (ts - startTime) / 3_600_000),
     };
   }
 
@@ -198,7 +299,7 @@ function heroDegradingReadings(chiller, ts, rand, profile, alarmAt, startTime) {
 }
 
 function condenserStressReadings(chiller, ts, rand, profile, alarmAt, startTime) {
-  const hoursToAlarm = (alarmAt - ts) / 3600000;
+  const hoursToAlarm = (alarmAt - ts) / 3_600_000;
   const readings = normalReadings(chiller, ts, rand, profile, startTime);
 
   if (hoursToAlarm < 0) {
@@ -240,7 +341,7 @@ function stoppedReadings(chiller, ts, rand, profile, faultAt, startTime) {
       percent_capacity: 0,
       unit_run_status: 0,
       compressor_starts: profile.startsBase,
-      run_hours: round1(profile.runHoursBase + (ts - startTime) / 3600000),
+      run_hours: round1(profile.runHoursBase + (ts - startTime) / 3_600_000),
     };
   }
   return normalReadings(chiller, ts, rand, profile, startTime);
@@ -262,19 +363,15 @@ function readingsForChiller(chiller, ts, rand, alarmTimes, startTime) {
   return normalReadings(chiller, ts, rand, profile, startTime);
 }
 
-export { ALARM_OFFSETS_MS, truncateToHour };
-
-export function generateTelemetry(opts = {}) {
-  const {
-    days = 7,
-    intervalHours = 1,
-    seed = 42,
-    endTime = truncateToHour(Date.now()),
-  } = opts;
-
-  const chillers = loadChillers();
-  const intervalMs = intervalHours * 3_600_000;
-  const totalPoints = Math.floor((days * 24) / intervalHours);
+/**
+ * Generate 840 telemetry documents (7 days × hourly × 5 chillers) with
+ * timestamps ending at `endTime` (a truncated-to-hour UTC millisecond value).
+ * Documents use BSON Date objects so they are accepted by the time-series
+ * collection timeField constraint.
+ */
+function buildTelemetry(chillers, endTime) {
+  const intervalMs = TELEMETRY_INTERVAL_HOURS * 3_600_000;
+  const totalPoints = TELEMETRY_DAYS * 24;
   const startTime = endTime - (totalPoints - 1) * intervalMs;
 
   const alarmTimes = Object.fromEntries(
@@ -286,37 +383,26 @@ export function generateTelemetry(opts = {}) {
 
   const documents = [];
   for (const chiller of chillers) {
-    const rand = mulberry32(seed + chiller.chiller_id.split("").reduce((a, c) => a + c.charCodeAt(0), 0));
+    const seed =
+      TELEMETRY_SEED +
+      chiller.chiller_id.split("").reduce((a, c) => a + c.charCodeAt(0), 0);
+    const rand = mulberry32(seed);
+
     for (let i = 0; i < totalPoints; i++) {
       const ts = startTime + i * intervalMs;
       documents.push({
         chiller_id: chiller.chiller_id,
-        timestamp: new Date(ts).toISOString(),
+        timestamp: new Date(ts),
         readings: readingsForChiller(chiller, ts, rand, alarmTimes, startTime),
       });
     }
   }
 
-  documents.sort((a, b) => a.timestamp.localeCompare(b.timestamp) || a.chiller_id.localeCompare(b.chiller_id));
+  documents.sort(
+    (a, b) =>
+      a.timestamp - b.timestamp ||
+      a.chiller_id.localeCompare(b.chiller_id)
+  );
+
   return documents;
-}
-
-function main() {
-  const opts = parseArgs();
-  const documents = generateTelemetry(opts);
-  writeFileSync(opts.output, JSON.stringify(documents, null, 2) + "\n");
-
-  const byChiller = {};
-  for (const d of documents) {
-    byChiller[d.chiller_id] = (byChiller[d.chiller_id] ?? 0) + 1;
-  }
-
-  console.log(`Wrote ${documents.length} telemetry documents to ${opts.output}`);
-  console.log(`Time range: ${documents[0].timestamp} → ${documents[documents.length - 1].timestamp}`);
-  console.log("Per chiller:", byChiller);
-}
-
-const isMain = process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1];
-if (isMain) {
-  main();
 }
